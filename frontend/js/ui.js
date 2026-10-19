@@ -32,25 +32,27 @@ const UI = (() => {
 
   const rarityColor = (item) => (item && item.color) || '#9aa4b2';
 
+  /* ---------- 小人 / 怪物（SVG 由 fx.js 提供） ---------- */
+  const SP = window.Sprite || { hero: () => '', monster: () => '' };
+
   /* ---------- 开始界面 ---------- */
   function classList(classes, selected) {
     return classes.map((c) => `
-      <button class="class-card ${c.id === selected ? 'selected' : ''}" data-action="select-class" data-id="${c.id}">
-        <span class="cc-check">◆</span>
-        <div class="cc-top">
-          <span class="cc-emoji">${c.emoji}</span>
-          <div>
-            <div class="cc-name">${esc(c.name)}</div>
-            <div class="cc-title">${esc(c.title)}</div>
-          </div>
-        </div>
-        <p class="cc-desc">${esc(c.desc)}</p>
-        <div class="cc-tags">
-          <span class="tag diff">${esc(c.difficulty)}</span>
-          <span class="tag">生命 ${c.base.hp}</span>
-          <span class="tag">攻击 ${c.base.atk}</span>
-          <span class="tag">敏捷 ${c.base.agi}</span>
-        </div>
+      <button class="class-card ${c.id === selected ? 'selected' : ''}" data-action="select-class" data-id="${c.id}" data-tilt>
+        <span class="cc-figure">${SP.hero(c.id)}</span>
+        <span class="cc-main">
+          <span class="cc-top">
+            <span class="cc-name">${esc(c.name)}</span>
+            <span class="cc-title">${esc(c.title)}</span>
+          </span>
+          <span class="cc-desc">${esc(c.desc)}</span>
+        </span>
+        <span class="cc-stats">
+          <span><i>生命</i><b>${c.base.hp}</b></span>
+          <span><i>攻击</i><b>${c.base.atk}</b></span>
+          <span><i>敏捷</i><b>${c.base.agi}</b></span>
+          <span class="cc-diff">${esc(c.difficulty)}</span>
+        </span>
       </button>`).join('');
   }
 
@@ -62,16 +64,16 @@ const UI = (() => {
     return saves.map((s) => `
       <div class="save-card ${s.slot === 'auto' ? 'auto' : ''}" data-slot="${s.slot}">
         <div class="sc-top">
-          <span class="sc-slot">${s.slot === 'auto' ? '自动存档' : s.slot.replace('slot', '槽位 ')}</span>
-          <span class="sc-main">${esc(s.name)} · Lv.${s.level}</span>
+          <span class="sc-slot">${s.slot === 'auto' ? '自动' : s.slot.replace('slot', '槽位 ')}</span>
+          <span class="sc-main">${esc(s.name)}　Lv.${s.level}</span>
           ${s.in_battle ? '<span class="chip debuff">战斗中</span>' : ''}
         </div>
         <div class="sc-meta">
-          ${esc(s.class_emoji || '')} ${esc(s.class_name)} · ${esc(s.area_name)}<br />
-          ${esc((s.saved_at || '').replace('T', ' '))} · ${fmtTime(s.playtime)}
+          ${esc(s.class_emoji || '')} ${esc(s.class_name)}　${esc(s.area_name)}<br />
+          ${esc((s.saved_at || '').replace('T', ' '))}　${fmtTime(s.playtime)}
         </div>
         ${actions ? `<div class="sc-actions">
-          ${s.slot === 'auto' ? '' : `<button class="btn btn-sm" data-action="save" data-slot="${s.slot}">覆盖保存</button>`}
+          ${s.slot === 'auto' ? '' : `<button class="btn btn-sm" data-action="save" data-slot="${s.slot}">覆盖</button>`}
           <button class="btn btn-sm btn-primary" data-action="load" data-slot="${s.slot}">读取</button>
           ${s.slot === 'auto' ? '' : `<button class="btn btn-sm btn-danger" data-action="delete-save" data-slot="${s.slot}">删除</button>`}
         </div>` : ''}
@@ -79,8 +81,46 @@ const UI = (() => {
   }
 
   /* ---------- 角色面板 ---------- */
-  function characterPanel(char) {
+  const CLASS_ROLE = { warrior: '近战', mage: '法术', ranger: '远程', cleric: '治疗' };
+
+  function radarChart(stats) {
+    const axes = [
+      { label: '攻', v: stats.atk, max: 50 },
+      { label: '防', v: stats.def, max: 50 },
+      { label: '敏', v: stats.agi, max: 22 },
+      { label: '暴', v: stats.crit, max: 32 },
+      { label: '闪', v: stats.dodge, max: 32 },
+    ];
+    const cx = 100;
+    const cy = 90;
+    const R = 58;
+    const P = (i, k) => {
+      const a = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+      return [cx + Math.cos(a) * R * k, cy + Math.sin(a) * R * k];
+    };
+    const ring = (k) => axes.map((_, i) => P(i, k).map((n) => n.toFixed(1)).join(',')).join(' ');
+    const data = axes.map((a, i) => P(i, Math.max(0.08, Math.min(1, a.v / a.max))));
+    return `
+      <div class="char-radar">
+        <svg viewBox="0 0 200 182" aria-hidden="true">
+          ${[0.25, 0.5, 0.75, 1].map((k) => `<polygon class="radar-grid" points="${ring(k)}"/>`).join('')}
+          ${axes.map((_, i) => {
+            const [x, y] = P(i, 1);
+            return `<line class="radar-axis" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+          }).join('')}
+          <polygon class="radar-area" points="${data.map((p) => p.map((n) => n.toFixed(1)).join(',')).join(' ')}"/>
+          ${data.map(([x, y]) => `<circle class="radar-halo" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.2"/><circle class="radar-dot" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1.7"/>`).join('')}
+          ${axes.map((a, i) => {
+            const [x, y] = P(i, 1.2);
+            return `<text class="radar-label" x="${x.toFixed(1)}" y="${(y + 3).toFixed(1)}" text-anchor="middle">${a.label}</text>`;
+          }).join('')}
+        </svg>
+      </div>`;
+  }
+
+  function characterPanel(char, meta) {
     const s = char.stats;
+    const cls = ((meta && meta.classes) || []).find((c) => c.id === char.class_id) || {};
     const expPct = pct(char.exp, char.exp_need);
     const alloc = char.points > 0 ? `
       <div class="alloc-box">
@@ -93,17 +133,31 @@ const UI = (() => {
         </div>
       </div>` : '';
 
+    const rows = [
+      ['攻击', s.atk, 50],
+      ['防御', s.def, 50],
+      ['敏捷', s.agi, 22],
+      ['暴击', `${s.crit}%`, 32, s.crit],
+      ['闪避', `${s.dodge}%`, 32, s.dodge],
+      ['击杀', char.kills, 50],
+    ].map(([label, value, max, raw]) => `
+      <div class="cs-row">
+        <span>${label}</span>
+        <em class="cs-mini"><i style="width:${Math.min(100, ((raw != null ? raw : value) / max) * 100)}%"></i></em>
+        <b>${value}</b>
+      </div>`).join('');
+
     const equip = ['weapon', 'armor', 'accessory'].map((slot) => {
       const item = char.equipment[slot];
       const label = { weapon: '武器', armor: '护甲', accessory: '饰品' }[slot];
       if (!item) {
         return `<div class="equip-slot empty">
-          <span class="es-emoji">·</span>
+          <span class="es-icon">·</span>
           <div class="es-main"><div class="es-name">${label}</div><div class="es-label">未装备</div></div>
         </div>`;
       }
       return `<div class="equip-slot filled" data-action="unequip" data-slot="${slot}" title="点击卸下">
-        <span class="es-emoji">${item.emoji}</span>
+        <span class="es-icon" style="color:${rarityColor(item)}">${item.emoji}</span>
         <div class="es-main">
           <div class="es-name" style="color:${rarityColor(item)}">${esc(item.name)}</div>
           <div class="es-stat">${esc(statText(item.stats))}</div>
@@ -113,63 +167,79 @@ const UI = (() => {
 
     return `
       <div class="char-head">
-        <div class="avatar">${char.class_emoji}</div>
+        <div class="char-portrait">
+          <div class="cp-rings" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="cp-frame" aria-hidden="true"></div>
+          <div class="cp-sprite">${SP.hero(char.class_id)}</div>
+          <span class="cp-lv">Lv.${char.level}</span>
+        </div>
         <div class="char-id">
           <div class="char-name">${esc(char.name)}</div>
-          <div class="char-sub">${esc(char.class_name)} · <b>Lv.${char.level}</b></div>
+          <div class="char-sub">${esc(char.class_name)}　${esc(char.class_title || '')}</div>
+          <div class="char-tags">
+            <span class="hot">${esc(cls.difficulty || '')}</span>
+            <span>${CLASS_ROLE[char.class_id] || ''}</span>
+          </div>
         </div>
       </div>
-      <div class="level-row"><span>经验</span><span><b>${char.exp}</b> / ${char.exp_need}</span></div>
-      <div class="bar exp thin"><i style="width:${expPct}%"></i></div>
 
       <div class="vital hp">
         <div class="vital-head"><span>生命</span><span>${char.hp} / ${s.max_hp}</span></div>
-        <div class="bar hp"><i style="width:${pct(char.hp, s.max_hp)}%"></i></div>
+        <div class="bar hp seg"><i style="width:${pct(char.hp, s.max_hp)}%"></i></div>
       </div>
       <div class="vital mp">
         <div class="vital-head"><span>法力</span><span>${char.mp} / ${s.max_mp}</span></div>
-        <div class="bar mp"><i style="width:${pct(char.mp, s.max_mp)}%"></i></div>
+        <div class="bar mp seg"><i style="width:${pct(char.mp, s.max_mp)}%"></i></div>
+      </div>
+      <div class="vital exp">
+        <div class="vital-head"><span>经验</span><span>${char.exp} / ${char.exp_need}</span></div>
+        <div class="bar exp seg"><i style="width:${expPct}%"></i></div>
       </div>
 
-      <div class="stat-grid">
-        <div class="stat-cell"><span>攻击</span><b>${s.atk}</b></div>
-        <div class="stat-cell"><span>防御</span><b>${s.def}</b></div>
-        <div class="stat-cell"><span>敏捷</span><b>${s.agi}</b></div>
-        <div class="stat-cell"><span>暴击</span><b>${s.crit}%</b></div>
-        <div class="stat-cell"><span>闪避</span><b>${s.dodge}%</b></div>
-        <div class="stat-cell"><span>击杀</span><b>${char.kills}</b></div>
-      </div>
+      ${radarChart(s)}
+      <div class="char-stats">${rows}</div>
 
       ${alloc}
-      <div class="equip-title">装备</div>
+      <div class="equip-title"><span>装备</span><span>${Object.values(char.equipment).filter(Boolean).length} / 3</span></div>
       <div class="equip-list">${equip}</div>
     `;
   }
 
   /* ---------- 地图 ---------- */
-  function areaDetail(area, char) {
+  const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+  const FEATURE_LABEL = { rest: '休整', shop: '商店', save: '存档', explore: '探索', boss: '守关者' };
+
+  function areaDetail(area, char, index) {
     const boss = area.boss;
+    const numeral = index >= 0 && index < ROMAN.length ? ROMAN[index] : '';
     const bossChip = area.cleared
-      ? `<span class="boss-chip cleared">✓ 守关者已击败</span>`
+      ? `<span class="boss-chip cleared">守关者已击败</span>`
       : boss
-        ? `<span class="boss-chip">☠ ${esc(boss.name)} · Lv.${boss.level}</span>`
+        ? `<span class="boss-chip">守关者 ${esc(boss.name)}　Lv.${boss.level}</span>`
         : '';
+    const features = (area.features || [])
+      .map((f) => `<span class="tag">${FEATURE_LABEL[f] || esc(f)}</span>`)
+      .join('');
     const actions = area.safe
       ? `<button class="btn btn-primary" data-action="rest">在村中休整</button>
          <button class="btn" data-action="shop">铁匠铺 · 商店</button>`
       : `<button class="btn btn-primary" data-action="explore">探索区域</button>
-         ${boss && !area.cleared ? `<button class="btn btn-danger" data-action="challenge-boss">挑战 Boss</button>` : ''}`;
+         ${boss && !area.cleared ? `<button class="btn btn-danger" data-action="challenge-boss">挑战守关者</button>` : ''}`;
     return `
-      <div class="ad-head">
-        <div class="ad-emoji">${area.emoji}</div>
-        <div class="ad-title">
+      <div class="ad-banner">
+        <div class="ad-art">${SP.scene(area.id)}</div>
+        <div class="ad-banner-frame" aria-hidden="true"></div>
+        <div class="ad-numeral" aria-hidden="true">${numeral}</div>
+        <div class="ad-banner-text">
           <h2>${esc(area.name)}</h2>
           <div class="ad-meta">
-            <span>推荐等级 ${area.level_range[0]} - ${area.level_range[1]}</span>
-            <span>层级 ${area.tier}</span>
+            <span>推荐等级 ${area.level_range[0]} 至 ${area.level_range[1]}</span>
+            <span>第 ${area.tier} 层</span>
+            ${features}
             ${bossChip}
           </div>
         </div>
+        <div class="ad-figure">${SP.hero(char.class_id)}</div>
       </div>
       <p class="ad-desc">${esc(area.desc)}</p>
       <div class="ad-actions">${actions}</div>
@@ -177,26 +247,35 @@ const UI = (() => {
   }
 
   function mapGrid(world) {
-    return world.areas.map((a) => {
+    const items = world.areas.map((a) => {
       const locked = !a.unlocked;
       const cls = [
-        'map-card',
+        'route-item',
         a.current ? 'current' : '',
         locked ? 'locked' : '',
         a.cleared ? 'cleared' : '',
       ].join(' ');
+      const state = a.cleared
+        ? '已肃清'
+        : a.boss
+          ? '守关者尚未击败'
+          : '安全区域';
       return `
-        <div class="${cls}" data-action="${locked ? 'locked-area' : 'travel'}" data-area="${a.id}">
-          <div class="mc-top">
-            <span class="mc-emoji">${a.emoji}</span>
-            <span class="mc-name">${esc(a.name)}</span>
-            <span class="mc-lv">Lv.${a.level_range[0]}-${a.level_range[1]}</span>
-          </div>
-          <div class="mc-desc">${esc(a.desc)}</div>
-          <div class="mc-boss">${a.cleared ? '✓ 已肃清' : a.boss ? '☠ 守关者未击败' : '— 安全区域'}</div>
-          ${locked ? '<div class="mc-lock">🔒</div>' : ''}
-        </div>`;
+        <li class="${cls}" data-action="${locked ? 'locked-area' : 'travel'}" data-area="${a.id}" data-tilt>
+          <span class="route-node" aria-hidden="true"></span>
+          <span class="route-art">${SP.scene(a.id)}</span>
+          <span class="route-body">
+            <span class="route-top">
+              <span class="route-name">${esc(a.name)}</span>
+              <span class="route-leader" aria-hidden="true"></span>
+              <span class="route-lv">Lv.${a.level_range[0]}–${a.level_range[1]}</span>
+            </span>
+            ${locked ? '' : `<span class="route-desc">${esc(a.desc)}</span>`}
+            <span class="route-foot">${a.boss && !a.cleared ? '<i class="boss-dot"></i>' : ''}${state}</span>
+          </span>
+        </li>`;
     }).join('');
+    return `<ol class="route">${items}</ol>`;
   }
 
   /* ---------- 背包 ---------- */
@@ -265,8 +344,8 @@ const UI = (() => {
   function battleHead(battle) {
     return `
       <div class="battle-head">
-        <span class="bh-tag">${battle.is_boss ? 'BOSS BATTLE' : 'ENCOUNTER'}</span>
         <h2>${esc(battle.area_name)}</h2>
+        ${battle.is_boss ? '<span class="bh-boss">守关者</span>' : ''}
         <span class="round">第 ${battle.round} 回合</span>
       </div>`;
   }
@@ -292,16 +371,14 @@ const UI = (() => {
       const dead = !e.alive || e.hp <= 0;
       const sel = selected === e.index && !dead;
       return `
-        <div class="enemy-card ${e.is_boss ? 'boss' : ''} ${dead ? 'dead' : ''} ${sel ? 'selected' : ''} ${dead ? '' : 'targetable'}"
-             data-action="target" data-index="${e.index}" data-enemy="${e.index}">
+        <div class="enemy-card ${e.is_boss ? 'boss' : ''} ${dead ? 'dead' : ''} ${sel ? 'selected' : ''}"
+             data-action="target" data-index="${e.index}" data-enemy="${e.index}" data-tilt>
+          <div class="ec-figure">${SP.monster(e.name + '#' + e.index, e.is_boss)}</div>
           <div class="ec-top">
-            <span class="ec-emoji">${e.emoji}</span>
-            <div>
-              <div class="ec-name">${esc(e.name)}${e.is_boss ? '<span class="ec-boss-tag">BOSS</span>' : ''}</div>
-              <div class="ec-lv">Lv.${e.level} · 攻 ${e.atk} · 防 ${e.def}</div>
-            </div>
+            <div class="ec-name">${esc(e.name)}${e.is_boss ? '<span class="ec-boss-tag">Boss</span>' : ''}</div>
+            <div class="ec-lv">Lv.${e.level}　攻 ${e.atk}　防 ${e.def}</div>
           </div>
-          <div class="ec-hp-text"><span>生命</span><span>${Math.max(0, e.hp)} / ${e.max_hp}</span></div>
+          <div class="ec-hp-text"><span>${Math.max(0, e.hp)} / ${e.max_hp}</span></div>
           <div class="bar hp thin"><i style="width:${pct(Math.max(0, e.hp), e.max_hp)}%"></i></div>
           <div class="ec-buffs">${buffChips(e)}</div>
         </div>`;
@@ -313,10 +390,10 @@ const UI = (() => {
     return `
       <div class="player-strip" data-player>
         <div class="ps-top">
-          <span class="ec-emoji">${char.class_emoji}</span>
+          <span class="ps-figure">${SP.hero(char.class_id)}</span>
           <div>
             <div class="ps-name">${esc(char.name)}</div>
-            <div class="ps-sub">Lv.${char.level} ${esc(char.class_name)} · 闪避 ${p.dodge}%</div>
+            <div class="ps-sub">${esc(char.class_name)}　Lv.${char.level}　闪避 ${p.dodge}%</div>
           </div>
           <div class="ps-bars">
             <div class="ps-bar">
@@ -352,7 +429,11 @@ const UI = (() => {
     return `
       <div class="battle-wrap">
         ${battleHead(battle)}
-        <div class="enemy-grid">${enemyCards(battle, selected)}</div>
+        <div class="arena">
+          <div class="arena-bg" aria-hidden="true">${SP.scene(battle.area_id)}</div>
+          <div class="arena-fog" aria-hidden="true"></div>
+          <div class="enemy-grid">${enemyCards(battle, selected)}</div>
+        </div>
         ${playerStrip(battle, char)}
         <div class="battle-log" id="battle-log">${battleLog(battle.log)}</div>
         <div class="action-bar">

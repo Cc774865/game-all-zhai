@@ -4,85 +4,145 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>十域九王 · 回合制 RPG</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css?v=22" />
+  <link rel="stylesheet" href="css/fx.css?v=22" />
 </head>
 <body>
-  <div class="bg-aura" aria-hidden="true"></div>
+  <!-- ============ 背景层 ============ -->
+  <canvas id="fx-canvas" aria-hidden="true"></canvas>
+  <div class="fx-nebula" aria-hidden="true"></div>
+  <div class="fx-aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="fx-fog" aria-hidden="true"></div>
+  <div class="fx-runes" aria-hidden="true"></div>
+  <div class="hud-grid" aria-hidden="true"></div>
+  <div class="hud-scan" aria-hidden="true"></div>
+  <div class="fx-vignette" aria-hidden="true"></div>
+  <div class="fx-grain" aria-hidden="true"></div>
 
-  <!-- ================= 开始界面 ================= -->
+  <!-- ============ 序章 ============ -->
+  <div id="cine" class="cine" hidden>
+    <div class="cine-stars" aria-hidden="true"></div>
+    <div class="cine-glow" aria-hidden="true"></div>
+    <div class="cine-scan" aria-hidden="true"></div>
+
+    <svg class="cine-rune" viewBox="0 0 400 400" aria-hidden="true">
+      <g class="r-rotate">
+        <circle class="r-ring" cx="200" cy="200" r="168" />
+        <circle class="r-ring inner" cx="200" cy="200" r="132" />
+        <g class="r-ticks">
+          <line x1="200" y1="18" x2="200" y2="36" />
+          <line x1="200" y1="364" x2="200" y2="382" />
+          <line x1="18" y1="200" x2="36" y2="200" />
+          <line x1="364" y1="200" x2="382" y2="200" />
+        </g>
+      </g>
+      <g class="r-rotate rev">
+        <circle class="r-ring" cx="200" cy="200" r="104" />
+        <polygon class="r-ticks" points="200,72 268,272 132,272" fill="none" />
+        <polygon class="r-ticks" points="200,328 132,128 268,128" fill="none" />
+      </g>
+    </svg>
+
+    <div class="cine-core">
+      <div class="cine-kicker">A TURN-BASED ODYSSEY</div>
+      <h1 class="cine-title"><span>十</span><span>域</span><span>九</span><span>王</span></h1>
+      <div class="cine-sub"></div>
+      <div class="cine-tag">四道命途　十片土地　九位守关者</div>
+      <div class="cine-line" aria-hidden="true"></div>
+    </div>
+
+    <div class="cine-bar top" aria-hidden="true"></div>
+    <div class="cine-bar bottom" aria-hidden="true"></div>
+    <button class="cine-skip">跳过序章</button>
+  </div>
+
+  <!-- ============ 章节卡 ============ -->
+  <div id="chapter" class="chapter" hidden>
+    <div class="chapter-inner">
+      <span class="chapter-kicker">序章</span>
+      <h2 class="chapter-area"></h2>
+      <p class="chapter-hero"></p>
+    </div>
+  </div>
+
+  <!-- ============ 开始界面 ============ -->
   <section id="start-screen" class="screen">
     <div class="start-wrap">
-      <header class="hero-title">
-        <div class="hero-rune">✦</div>
-        <h1>十域九王</h1>
-        <p class="hero-sub">TURN-BASED ODYSSEY</p>
-        <p class="hero-desc">从晨曦村出发，穿过迷雾、沙海与熔岩，直到虚空王座。<br />四条道路，十片土地，九位守关者。</p>
-        <div class="hero-stats">
-          <span><b>4</b> 职业</span><span><b>10</b> 区域</span><span><b>9</b> Boss</span><span><b>24</b> 技能</span>
-        </div>
-      </header>
+      <div class="start-main">
+        <header class="hero-title">
+          <div class="hero-ring" aria-hidden="true"><i></i></div>
+          <h1>十域九王</h1>
+          <p class="hero-sub">Ten realms, nine kings</p>
+          <p class="hero-desc">
+            从晨曦村出发，穿过迷雾、沙海与熔岩，直到虚空王座。
+            四条道路，十片土地，九位守关者。你只能带一个人走完全程。
+          </p>
+        </header>
 
-      <div class="start-grid">
-        <div class="panel start-main">
-          <h2 class="panel-title">选择你的道路</h2>
-          <div id="class-list" class="class-list"></div>
-          <div class="name-row">
-            <label for="hero-name">旅人姓名</label>
-            <input id="hero-name" type="text" maxlength="12" placeholder="无名旅人" autocomplete="off" />
-          </div>
-          <button id="btn-new-game" class="btn btn-primary btn-lg" data-action="new-game">开始新的旅程</button>
-          <p class="hint">游戏进度会自动保存在浏览器之外的本机文件中，随时可以中断。</p>
-        </div>
+        <div class="rule-title"><h2>选择你的道路</h2></div>
+        <div id="class-list" class="class-list"></div>
 
-        <div class="panel start-side">
-          <h2 class="panel-title">继续旅程</h2>
-          <div id="start-saves" class="save-list"></div>
-          <div class="start-tips">
-            <h3>操作提示</h3>
-            <ul>
-              <li>探索区域触发遭遇战，击败敌人获得经验与装备。</li>
-              <li>战斗中可选择攻击、技能、防御或闪避姿态。</li>
-              <li>每级获得 3 点属性点，技能随施展次数成长。</li>
-              <li>击败区域 Boss 才能解锁下一片土地。</li>
-            </ul>
-          </div>
+        <div class="name-row">
+          <label for="hero-name">旅人姓名</label>
+          <input id="hero-name" type="text" maxlength="12" placeholder="无名旅人" autocomplete="off" />
         </div>
+        <button id="btn-new-game" class="btn btn-primary btn-lg" data-action="new-game">开始旅程</button>
+        <p class="hint">进度会自动保存在本机文件中，随时可以中断。</p>
       </div>
+
+      <aside class="start-side">
+        <div class="rule-title"><h2>继续旅程</h2></div>
+        <div id="start-saves" class="save-list"></div>
+
+        <div class="start-tips">
+          <h3>怎么玩</h3>
+          <ul>
+            <li>在野外探索会触发遭遇战，胜利可得经验与装备。</li>
+            <li>每回合可选攻击、技能、防御、闪避姿态或道具。</li>
+            <li>每升一级获得 3 点属性点，技能随施展次数成长。</li>
+            <li>击败区域守关者，才能继续向前。</li>
+          </ul>
+        </div>
+
+        <button class="btn btn-ghost btn-sm btn-block" data-action="replay-intro" style="margin-top:26px">
+          重播序章
+        </button>
+
+        <p class="start-coda">群山之上，还有九张空着的王座。</p>
+      </aside>
     </div>
   </section>
 
-  <!-- ================= 游戏界面 ================= -->
+  <!-- ============ 游戏界面 ============ -->
   <section id="game-screen" class="screen" hidden>
     <header class="topbar">
       <div class="brand">
-        <span class="brand-mark">✦</span>
         <span class="brand-name">十域九王</span>
       </div>
       <div class="topbar-area">
         <span id="top-area" class="area-chip">晨曦村</span>
-        <span id="top-level" class="meta-chip">Lv.1</span>
+        <span id="top-level" class="meta-chip">Lv.1 剑士</span>
       </div>
       <div class="topbar-right">
         <span class="meta-chip gold"><i>◈</i><b id="top-gold">0</b></span>
         <span class="meta-chip time" id="top-time">00:00</span>
+        <button id="btn-settings" class="btn btn-ghost btn-sm">设置</button>
         <button id="btn-home" class="btn btn-ghost btn-sm">主菜单</button>
         <button id="btn-save" class="btn btn-ghost btn-sm">保存进度</button>
       </div>
     </header>
 
     <div class="layout">
-      <!-- 角色面板 -->
-      <aside class="panel char-panel" id="char-panel"></aside>
+      <aside class="char-panel" id="char-panel"></aside>
 
-      <!-- 主视图 -->
       <main class="main-col">
         <section id="map-view" class="view">
           <div id="area-detail" class="area-detail"></div>
           <div class="section-head">
-            <h2>世界地图</h2>
-            <span class="section-sub">击败守关者以解锁下一片土地</span>
+            <h2>行旅图</h2>
+            <span class="section-sub">击败守关者，才能继续向前</span>
           </div>
-          <div id="map-grid" class="map-grid"></div>
+          <div id="map-grid"></div>
         </section>
 
         <section id="battle-view" class="view" hidden>
@@ -90,10 +150,9 @@
         </section>
       </main>
 
-      <!-- 侧栏 -->
-      <aside class="panel side-panel">
+      <aside class="side-panel">
         <nav class="tabs" id="tabs">
-          <button class="tab active" data-tab="bag" data-action="tab">背包</button>
+          <button class="tab active" data-tab="bag" data-action="tab">行囊</button>
           <button class="tab" data-tab="skills" data-action="tab">技能</button>
           <button class="tab" data-tab="saves" data-action="tab">存档</button>
         </nav>
@@ -105,10 +164,12 @@
   </section>
 
   <div id="modal-root"></div>
+  <div id="fx-transition" class="fx-transition" hidden></div>
   <div id="toast-root" class="toast-root"></div>
 
-  <script src="js/api.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/main.js"></script>
+  <script src="js/api.js?v=22"></script>
+  <script src="js/fx.js?v=22"></script>
+  <script src="js/ui.js?v=22"></script>
+  <script src="js/main.js?v=22"></script>
 </body>
 </html>

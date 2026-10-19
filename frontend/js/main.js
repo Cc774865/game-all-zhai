@@ -13,6 +13,42 @@ const App = {
 
 const $ = (sel) => document.querySelector(sel);
 
+/* ---------------- 界面设置 ---------------- */
+const THEMES = {
+  brass: { name: '黄铜', rgb: '200, 162, 74' },
+  mithril: { name: '秘银', rgb: '150, 182, 202' },
+  ember: { name: '余烬', rgb: '206, 96, 72' },
+  jade: { name: '翠玉', rgb: '110, 190, 152' },
+  void: { name: '虚空', rgb: '170, 124, 240' },
+  frost: { name: '霜蓝', rgb: '116, 168, 220' },
+};
+
+const Settings = {
+  data: { theme: 'brass', scan: false, grid: false, motion: true, compact: false },
+  load() {
+    try {
+      const raw = JSON.parse(localStorage.getItem('shiyu-ui') || '{}');
+      Object.assign(this.data, raw);
+    } catch (e) { /* 忽略损坏的设置 */ }
+  },
+  save() {
+    try { localStorage.setItem('shiyu-ui', JSON.stringify(this.data)); } catch (e) { /* 忽略 */ }
+  },
+  apply() {
+    const theme = THEMES[this.data.theme] || THEMES.brass;
+    document.documentElement.style.setProperty('--accent-rgb', theme.rgb);
+    document.body.classList.toggle('hud-scan-on', !!this.data.scan);
+    document.body.classList.toggle('hud-grid-on', !!this.data.grid);
+    document.body.classList.toggle('reduce-fx', !this.data.motion);
+    document.body.classList.toggle('compact', !!this.data.compact);
+  },
+  set(key, value) {
+    this.data[key] = value;
+    this.save();
+    this.apply();
+  },
+};
+
 /* ---------------- 提示与弹窗 ---------------- */
 function toast(message, type = '') {
   const root = $('#toast-root');
@@ -30,9 +66,13 @@ function toast(message, type = '') {
 
 function openModal(html) {
   $('#modal-root').innerHTML = `
-    <div class="modal-mask" data-action="close-modal">
+    <div class="modal-mask">
       <div class="modal">${html}</div>
     </div>`;
+  const mask = $('#modal-root .modal-mask');
+  mask.addEventListener('click', (e) => {
+    if (e.target === mask) closeModal();
+  });
 }
 
 function closeModal() {
@@ -54,6 +94,7 @@ function confirmModal(title, text, onOk) {
 function renderStart() {
   $('#start-screen').hidden = false;
   $('#game-screen').hidden = true;
+  if (window.FX) FX.setMood('village');
   if (!App.meta) return;
   $('#class-list').innerHTML = UI.classList(App.meta.classes, App.selectedClass);
   $('#start-saves').innerHTML = UI.saveList(App.state ? App.state.saves : [], {
@@ -64,12 +105,14 @@ function renderStart() {
   $('#start-saves').querySelectorAll('.save-card').forEach((card) => {
     const slot = card.dataset.slot;
     if (!slot) return;
+    const row = document.createElement('div');
+    row.className = 'sc-actions';
     const btn = document.createElement('button');
     btn.className = 'btn btn-sm btn-primary';
-    btn.style.marginTop = '8px';
-    btn.textContent = '读取此存档';
+    btn.textContent = '继续这段旅程';
     btn.onclick = () => loadGame(slot);
-    card.appendChild(btn);
+    row.appendChild(btn);
+    card.appendChild(row);
   });
 }
 
@@ -95,8 +138,11 @@ function renderSide() {
 
 function renderMap() {
   const st = App.state;
-  $('#area-detail').innerHTML = UI.areaDetail(st.area, st.character);
+  const idx = st.world.areas.findIndex((a) => a.id === st.area.id);
+  $('#area-detail').innerHTML = UI.areaDetail(st.area, st.character, idx);
   $('#map-grid').innerHTML = UI.mapGrid(st.world);
+  const sub = document.querySelector('#map-view .section-sub');
+  if (sub) sub.textContent = `已肃清 ${st.world.bosses.length} 处，共 ${st.world.areas.length} 域`;
 }
 
 function renderBattle() {
@@ -129,21 +175,23 @@ function renderAll() {
     renderStart();
     return;
   }
+  if (window.FX && App.state.area) FX.setMood(App.state.area.id);
   $('#start-screen').hidden = true;
   $('#game-screen').hidden = false;
   renderTop();
-  $('#char-panel').innerHTML = UI.characterPanel(App.state.character);
+  $('#char-panel').innerHTML = UI.characterPanel(App.state.character, App.meta);
   renderMap();
   renderSide();
   renderBattle();
 }
 
-function enterGame() {
+function enterGame(kind) {
   App.battle = App.state.battle || null;
   App.selectedTarget = null;
   App.picker = null;
   App.lastLevel = App.state.character ? App.state.character.level : 1;
-  renderAll();
+  if (window.FX && FX.scene) FX.scene(kind || null, renderAll);
+  else renderAll();
 }
 
 /* ---------------- 战斗反馈动画 ---------------- */
@@ -200,6 +248,7 @@ async function withBusy(fn) {
 
 async function act(action, payload = {}) {
   return withBusy(async () => {
+    const hadBattle = !!App.battle;
     const res = await API.post('/api/action', { action, ...payload });
     if (res.state) {
       App.state = res.state;
@@ -214,7 +263,14 @@ async function act(action, payload = {}) {
       if (res.event.kind === 'item') toast(`拾获【${res.event.name}】`, 'success');
     }
     if (action === 'travel') App.battle = null;
-    renderAll();
+
+    let kind = 'soft';
+    if (action === 'travel') kind = 'travel';
+    if (res.battle && !hadBattle) kind = 'encounter';
+
+    if (window.FX && FX.scene) await FX.scene(kind, renderAll);
+    else renderAll();
+    if (window.FX && kind === 'encounter') FX.impact();
   });
 }
 
@@ -226,10 +282,26 @@ async function battleAct(payload) {
     App.state = res.state;
     App.stateAt = Date.now();
     App.picker = null;
-    renderAll();
+
+    const status = res.battle ? res.battle.status : 'active';
+    const kind = status === 'won' ? 'victory'
+      : status === 'lost' ? 'defeat'
+        : status === 'fled' ? 'soft' : null;
+    if (window.FX && FX.scene) await FX.scene(kind, renderAll);
+    else renderAll();
+
+    if (window.FX && kind === 'victory') {
+      FX.impact();
+      FX.burst(window.innerWidth / 2, window.innerHeight * 0.32);
+    }
+
     animateEvents(res.events);
+    if (window.FX) FX.playBattle(res.events, payload.action);
     if (res.state.character && res.state.character.level > prevLevel) {
-      setTimeout(() => toast(`升级！当前 Lv.${res.state.character.level}，获得 3 点属性点`, 'gold'), 400);
+      setTimeout(() => {
+        toast(`升级！当前 Lv.${res.state.character.level}，获得 3 点属性点`, 'gold');
+        if (window.FX) FX.levelUp();
+      }, 400);
     }
     if (res.unlocked_areas && res.unlocked_areas.length) {
       setTimeout(() => toast('新区域解锁：' + res.unlocked_areas.map((a) => a.name).join('、'), 'success'), 600);
@@ -242,7 +314,7 @@ async function loadGame(slot) {
     const state = await API.post('/api/load', { slot });
     App.state = state;
     App.stateAt = Date.now();
-    enterGame();
+    enterGame('dive');
     toast('读取存档成功', 'success');
   });
 }
@@ -297,6 +369,37 @@ function openSaveDialog() {
     </div>`);
 }
 
+function openSettings() {
+  const d = Settings.data;
+  openModal(`
+    <h2>界面设置</h2>
+    <p class="m-sub">换一套配色，或调整界面密度与动效。设置保存在本机。</p>
+    <div class="set-group">
+      <div class="set-label">主题色</div>
+      <div class="theme-grid">
+        ${Object.entries(THEMES).map(([id, t]) => `
+          <button class="theme-dot ${d.theme === id ? 'active' : ''}" data-action="set-theme" data-theme="${id}">
+            <i style="background: rgb(${t.rgb}); color: rgb(${t.rgb})"></i>
+            <span>${t.name}</span>
+          </button>`).join('')}
+      </div>
+    </div>
+    <div class="set-group">
+      <div class="set-label">显示</div>
+      <div class="set-row"><span>扫描线</span>
+        <button class="switch ${d.scan ? 'on' : ''}" data-action="toggle-setting" data-key="scan" aria-label="扫描线"><i></i></button></div>
+      <div class="set-row"><span>背景网格</span>
+        <button class="switch ${d.grid ? 'on' : ''}" data-action="toggle-setting" data-key="grid" aria-label="背景网格"><i></i></button></div>
+      <div class="set-row"><span>界面动效</span>
+        <button class="switch ${d.motion ? 'on' : ''}" data-action="toggle-setting" data-key="motion" aria-label="界面动效"><i></i></button></div>
+      <div class="set-row"><span>紧凑布局</span>
+        <button class="switch ${d.compact ? 'on' : ''}" data-action="toggle-setting" data-key="compact" aria-label="紧凑布局"><i></i></button></div>
+    </div>
+    <div style="text-align:right;margin-top:18px">
+      <button class="btn" data-action="close-modal">完成</button>
+    </div>`);
+}
+
 /* ---------------- 事件委托 ---------------- */
 function bindEvents() {
   document.addEventListener('click', (e) => {
@@ -305,7 +408,6 @@ function bindEvents() {
     const action = el.dataset.action;
 
     if (action === 'close-modal') {
-      if (e.target.closest('.modal')) return;
       closeModal();
       return;
     }
@@ -323,11 +425,31 @@ function bindEvents() {
           const state = await API.post('/api/new', { name, class_id: App.selectedClass });
           App.state = state;
           App.stateAt = Date.now();
-          enterGame();
+          enterGame('dive');
+          const cls = (App.meta.classes || []).find((c) => c.id === App.selectedClass);
+          if (window.FX) {
+            setTimeout(() => {
+              FX.chapter(state.area.name, `${state.character.name} · ${cls ? cls.name : state.character.class_name}`);
+            }, 680);
+          }
           toast('旅程开始。先去迷雾森林试试身手吧。', 'success');
         });
         break;
       }
+
+      case 'replay-intro':
+        if (window.FX) FX.cinematic(true);
+        break;
+
+      case 'set-theme':
+        Settings.set('theme', el.dataset.theme);
+        openSettings();
+        break;
+
+      case 'toggle-setting':
+        Settings.set(el.dataset.key, !Settings.data[el.dataset.key]);
+        openSettings();
+        break;
 
       case 'load':
         closeModal();
@@ -465,7 +587,8 @@ function bindEvents() {
         App.battle = null;
         App.picker = null;
         App.selectedTarget = null;
-        renderAll();
+        if (window.FX && FX.scene) FX.scene('soft', renderAll);
+        else renderAll();
         break;
 
       default:
@@ -474,6 +597,7 @@ function bindEvents() {
   });
 
   $('#btn-save').addEventListener('click', openSaveDialog);
+  $('#btn-settings').addEventListener('click', openSettings);
 
   $('#btn-home').addEventListener('click', () => {
     confirmModal('返回主菜单', '当前进度会自动保存，确定返回标题界面吗？', () => {
@@ -482,7 +606,8 @@ function bindEvents() {
         App.state = state;
         App.battle = null;
         App.picker = null;
-        renderStart();
+        if (window.FX && FX.scene) FX.scene('soft', renderStart);
+        else renderStart();
       });
     });
   });
@@ -515,12 +640,17 @@ function bindEvents() {
 
 /* ---------------- 启动 ---------------- */
 async function init() {
+  Settings.load();
+  Settings.apply();
+  if (window.FX) FX.init();
   bindEvents();
   setInterval(() => {
     if (App.state && App.state.active) {
       $('#top-time').textContent = UI.fmtTime(App.state.playtime + (Date.now() - App.stateAt) / 1000);
     }
   }, 1000);
+
+  const cine = window.FX ? FX.cinematic() : Promise.resolve();
 
   try {
     App.meta = await API.get('/api/meta');
@@ -533,6 +663,9 @@ async function init() {
   } catch (err) {
     toast('无法连接本地服务：' + err.message, 'error');
   }
+
+  await cine;
+  if (window.FX) FX.enterScreen();
 }
 
 init();
