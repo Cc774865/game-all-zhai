@@ -1,0 +1,62 @@
+[
+  {
+    "id": "village", "name": "晨曦村", "emoji": "🏘️", "safe": true, "level_range": [1, 1], "tier": 1,
+    "desc": "群山之间的最后一片安宁。铁匠铺的炉火彻夜不熄，旅人可以在这里补给、休整，也可以听见远方传来的狼嚎。",
+    "enemies": [], "boss": null, "unlock": null, "next": ["forest"],
+    "features": ["rest", "shop", "save"]
+  },
+  {
+    "id": "forest", "name": "迷雾森林", "emoji": "🌲", "safe": false, "level_range": [1, 4], "tier": 1,
+    "desc": "终年不散的白色雾气里，狼群与盗匪共享着同一条猎径。传闻森林深处盘踞着一头通体银白的巨狼。",
+    "enemies": ["e_wolf", "e_boar", "e_bandit"], "boss": "b_fenrir", "unlock": "village", "next": ["mine"],
+    "features": ["explore", "boss"]
+  },
+  {
+    "id": "mine", "name": "荒石矿洞", "emoji": "⛏️", "safe": false, "level_range": [3, 6], "tier": 1,
+    "desc": "废弃的矿脉深处仍有敲击声回荡。狗头人占据了下层坑道，而更深处，一尊石像正缓慢地睁开双眼。",
+    "enemies": ["e_bat", "e_kobold", "e_stone_guard"], "boss": "b_golden", "unlock": "forest", "next": ["swamp"],
+    "features": ["explore", "boss"]
+  },
+  {
+    "id": "swamp", "name": "腐沼湿地", "emoji": "🌫️", "safe": false, "level_range": [5, 8], "tier": 2,
+    "desc": "沼气在脚下炸开，水面浮着不知名的白骨。沼泽巫婆用毒雾豢养亡魂，任何踏入者都会成为新的养料。",
+    "enemies": ["e_toad", "e_bog_witch", "e_serpent"], "boss": "b_morgana", "unlock": "mine", "next": ["desert"],
+    "features": ["explore", "boss"]
+  },
+  {
+    "id": "desert", "name": "灼热沙海", "emoji": "🏜️", "safe": false, "level_range": [7, 10], "tier": 2,
+    "desc": "正午的沙面能烤熟鸡蛋。沙盗在废墟间游荡，而脚下的沙丘会突然塌陷——那是沙虫之王在呼吸。",
+    "enemies": ["e_scorpion", "e_sand_raider", "e_mummy"], "boss": "b_azra", "unlock": "swamp", "next": ["frost"],
+    "features": ["explore", "boss"]
+  },
+  {
+    "id": "frost", "name": "霜寒冰原", "emoji": "❄️", "safe": false, "level_range": [9, 12], "tier": 2,
+    "desc": "风雪割裂皮肤，呼出的气瞬间结霜。巨人尤弥尔在这片永冻之地上行走，每一步都让大地震颤。",
+    "enemies": ["e_ice_wolf", "e_frost_yeti", "e_snow_archer"], "boss": "b_ymir", "unlock": "desert", "next": ["graveyard"],
+    "features": ["explore", "boss"]
+  },
+  {
+    "id": "graveyard", "name": "幽魂墓园", "emoji": "🪦", "safe": false, "level_range": [11, 14], "tier": 3,
+    "desc": "墓碑东倒西歪，磷火在雾里排成队列。亡灵领主莫德雷斯在此称王，他的军团从不休眠。",
+    "enemies": ["e_ghost", "e_skeleton", "e_necromancer"], "boss": "b_mordres", "unlock": "frost", "next": ["lava"],
+    "features": ["explore", "boss"]
+  },
+  {
+    "id": "lava", "name": "熔岩深渊", "emoji": "🌋", "safe": false, "level_range": [13, 16], "tier": 3,
+    "desc": "岩浆在岩缝间流淌成河，空气烫得肺部发疼。炎魔巴洛戈被封印在裂隙最深处，封印正在崩解。",
+    "enemies": ["e_lava_hound", "e_flame_imp", "e_magma_golem"], "boss": "b_balrog", "unlock": "graveyard", "next": ["temple"],
+    "features": ["explore", "boss"]
+  },
+  {
+    "id": "temple", "name": "天空神殿", "emoji": "🏛️", "safe": false, "level_range": [15, 18], "tier": 3,
+    "desc": "悬浮于云海之上的白色神殿，台阶上刻着被抹去的祷文。堕落天使塞拉芬仍守着早已空无一人的神座。",
+    "enemies": ["e_temple_guard", "e_storm_harpy", "e_seraph_sentinel"], "boss": "b_seraph", "unlock": "lava", "next": ["void"],
+    "features": ["explore", "boss"]
+  },
+  {
+    "id": "void", "name": "虚空王座", "emoji": "🌌", "safe": false, "level_range": [18, 20], "tier": 4,
+    "desc": "没有天空，没有地面，只有一座漂浮的王座与无尽的黑暗。奥米伽坐在那里，等待最后一个挑战者。",
+    "enemies": ["e_void_wraith", "e_abyss_knight", "e_shadow_twin"], "boss": "b_omega", "unlock": "temple", "next": [],
+    "features": ["explore", "boss"]
+  }
+]

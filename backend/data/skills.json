@@ -1,0 +1,164 @@
+[
+  {
+    "id": "war_cleave", "class": "warrior", "name": "破甲斩", "icon": "🪓", "unlock_level": 1, "mp": 6,
+    "type": "physical", "power": 1.55, "hits": 1,
+    "desc": "全力劈砍，造成 155% 攻击伤害并削弱目标 25% 防御，持续 2 回合。",
+    "effects": [{ "kind": "debuff", "stat": "def", "pct": -0.25, "rounds": 2, "chance": 0.9 }]
+  },
+  {
+    "id": "war_bash", "class": "warrior", "name": "盾击", "icon": "🛡️", "unlock_level": 3, "mp": 9,
+    "type": "physical", "power": 1.1, "hits": 1,
+    "desc": "以盾牌撞击，110% 伤害并有 60% 概率眩晕目标 1 回合。",
+    "effects": [{ "kind": "stun", "rounds": 1, "chance": 0.6 }]
+  },
+  {
+    "id": "war_warcry", "class": "warrior", "name": "战吼", "icon": "📢", "unlock_level": 5, "mp": 11,
+    "type": "buff", "power": 0, "hits": 0,
+    "desc": "怒吼提升自身 35% 攻击力，持续 3 回合。",
+    "effects": [{ "kind": "buff", "stat": "atk", "pct": 0.35, "rounds": 3, "chance": 1 }]
+  },
+  {
+    "id": "war_whirlwind", "class": "warrior", "name": "旋风斩", "icon": "🌀", "unlock_level": 8, "mp": 15,
+    "type": "physical", "power": 0.95, "hits": 2,
+    "desc": "连续两段回旋斩击，每段造成 95% 攻击伤害。",
+    "effects": []
+  },
+  {
+    "id": "war_execute", "class": "warrior", "name": "斩首", "icon": "💀", "unlock_level": 12, "mp": 19,
+    "type": "physical", "power": 2.15, "hits": 1,
+    "desc": "215% 攻击伤害；若目标生命低于 30%，额外提升 60% 伤害。",
+    "effects": [{ "kind": "execute", "threshold": 0.3, "bonus": 0.6 }]
+  },
+  {
+    "id": "war_indomitable", "class": "warrior", "name": "不屈之躯", "icon": "🗿", "unlock_level": 16, "mp": 22,
+    "type": "buff", "power": 0, "hits": 0,
+    "desc": "获得等同 30% 最大生命的护盾，并提升 40% 防御 3 回合。",
+    "effects": [
+      { "kind": "shield", "pct": 0.3, "chance": 1 },
+      { "kind": "buff", "stat": "def", "pct": 0.4, "rounds": 3, "chance": 1 }
+    ]
+  },
+
+  {
+    "id": "mag_bolt", "class": "mage", "name": "奥术飞弹", "icon": "✴️", "unlock_level": 1, "mp": 6,
+    "type": "magic", "power": 1.45, "hits": 1,
+    "desc": "凝聚奥术能量，造成 145% 法术伤害，无视 60% 护甲。",
+    "effects": []
+  },
+  {
+    "id": "mag_fireball", "class": "mage", "name": "火球术", "icon": "🔥", "unlock_level": 3, "mp": 10,
+    "type": "magic", "power": 1.85, "hits": 1,
+    "desc": "190% 法术伤害，85% 概率点燃目标，每回合损失 4% 最大生命，持续 3 回合。",
+    "effects": [{ "kind": "dot", "id": "burn", "rounds": 3, "chance": 0.85 }]
+  },
+  {
+    "id": "mag_frost", "class": "mage", "name": "冰霜新星", "icon": "❄️", "unlock_level": 5, "mp": 12,
+    "type": "magic", "power": 1.3, "hits": 1,
+    "desc": "130% 法术伤害，冻结目标使其速度降低 45%，持续 2 回合。",
+    "effects": [{ "kind": "debuff", "stat": "agi", "pct": -0.45, "rounds": 2, "chance": 0.9 }]
+  },
+  {
+    "id": "mag_barrier", "class": "mage", "name": "奥术护盾", "icon": "🔵", "unlock_level": 8, "mp": 13,
+    "type": "buff", "power": 0, "hits": 0,
+    "desc": "生成吸收 28% 最大生命的护盾，并恢复 10 点法力。",
+    "effects": [
+      { "kind": "shield", "pct": 0.28, "chance": 1 },
+      { "kind": "restore_mp", "flat": 10, "chance": 1 }
+    ]
+  },
+  {
+    "id": "mag_meteor", "class": "mage", "name": "陨石术", "icon": "☄️", "unlock_level": 12, "mp": 23,
+    "type": "magic", "power": 2.75, "hits": 1,
+    "desc": "召唤陨石，造成 275% 法术伤害，对所有敌人生效。",
+    "aoe": true,
+    "effects": []
+  },
+  {
+    "id": "mag_annihilate", "class": "mage", "name": "湮灭", "icon": "🌌", "unlock_level": 16, "mp": 30,
+    "type": "magic", "power": 3.5, "hits": 1,
+    "desc": "撕裂现实的虚空冲击，350% 法术伤害并无视全部护甲。",
+    "pierce": 1.0,
+    "effects": []
+  },
+
+  {
+    "id": "ran_pierce", "class": "ranger", "name": "穿云箭", "icon": "🏹", "unlock_level": 1, "mp": 5,
+    "type": "physical", "power": 1.4, "hits": 1,
+    "desc": "140% 攻击伤害，本次攻击暴击率提升 15%。",
+    "effects": [{ "kind": "crit_bonus", "value": 15, "chance": 1 }]
+  },
+  {
+    "id": "ran_poison", "class": "ranger", "name": "毒刃", "icon": "🧪", "unlock_level": 3, "mp": 8,
+    "type": "physical", "power": 0.95, "hits": 1,
+    "desc": "90% 伤害并使目标中毒，每回合损失 5% 最大生命，持续 4 回合。",
+    "effects": [{ "kind": "dot", "id": "poison", "rounds": 4, "chance": 0.95 }]
+  },
+  {
+    "id": "ran_shadow", "class": "ranger", "name": "影袭", "icon": "🌫️", "unlock_level": 5, "mp": 10,
+    "type": "physical", "power": 1.7, "hits": 1,
+    "desc": "170% 伤害，并提升自身 25% 闪避，持续 2 回合。",
+    "effects": [{ "kind": "buff", "stat": "dodge", "pct": 0.25, "rounds": 2, "chance": 1 }]
+  },
+  {
+    "id": "ran_rain", "class": "ranger", "name": "箭雨", "icon": "🌧️", "unlock_level": 8, "mp": 16,
+    "type": "physical", "power": 0.85, "hits": 3,
+    "desc": "三轮箭雨，每段造成 85% 攻击伤害，随机命中敌人。",
+    "aoe": true,
+    "effects": []
+  },
+  {
+    "id": "ran_mark", "class": "ranger", "name": "猎杀印记", "icon": "🎯", "unlock_level": 12, "mp": 17,
+    "type": "physical", "power": 2.0, "hits": 1,
+    "desc": "200% 伤害并标记目标，削弱其 35% 防御，持续 3 回合。",
+    "effects": [{ "kind": "debuff", "stat": "def", "pct": -0.35, "rounds": 3, "chance": 1 }]
+  },
+  {
+    "id": "ran_phantom", "class": "ranger", "name": "幻影突袭", "icon": "👥", "unlock_level": 16, "mp": 24,
+    "type": "physical", "power": 1.05, "hits": 4,
+    "desc": "四段残影突袭，每段 105% 攻击伤害，每段独立判定暴击。",
+    "effects": []
+  },
+
+  {
+    "id": "cle_smite", "class": "cleric", "name": "神圣冲击", "icon": "🔨", "unlock_level": 1, "mp": 6,
+    "type": "magic", "power": 1.35, "hits": 1,
+    "desc": "降下圣光，造成 135% 法术伤害。",
+    "effects": []
+  },
+  {
+    "id": "cle_heal", "class": "cleric", "name": "治愈之光", "icon": "💚", "unlock_level": 3, "mp": 11,
+    "type": "heal", "power": 0, "hits": 0,
+    "desc": "恢复 32% 最大生命并额外恢复 20 点生命。",
+    "effects": [{ "kind": "heal", "pct": 0.32, "flat": 20, "chance": 1 }]
+  },
+  {
+    "id": "cle_bless", "class": "cleric", "name": "庇护", "icon": "🕊️", "unlock_level": 5, "mp": 12,
+    "type": "buff", "power": 0, "hits": 0,
+    "desc": "提升 60% 防御并获得每回合 4% 最大生命的再生，持续 3 回合。",
+    "effects": [
+      { "kind": "buff", "stat": "def", "pct": 0.6, "rounds": 3, "chance": 1 },
+      { "kind": "regen", "pct": 0.04, "rounds": 3, "chance": 1 }
+    ]
+  },
+  {
+    "id": "cle_purge", "class": "cleric", "name": "净化", "icon": "🌟", "unlock_level": 8, "mp": 10,
+    "type": "magic", "power": 1.2, "hits": 1,
+    "desc": "清除自身所有负面状态，并造成 120% 法术伤害。",
+    "effects": [{ "kind": "cleanse", "chance": 1 }]
+  },
+  {
+    "id": "cle_judgement", "class": "cleric", "name": "神圣裁决", "icon": "⚖️", "unlock_level": 12, "mp": 20,
+    "type": "magic", "power": 2.4, "hits": 1,
+    "desc": "240% 法术伤害，若目标处于负面状态则额外提升 40% 伤害。",
+    "effects": [{ "kind": "bonus_vs_debuff", "bonus": 0.4, "chance": 1 }]
+  },
+  {
+    "id": "cle_grace", "class": "cleric", "name": "生命礼赞", "icon": "🌱", "unlock_level": 16, "mp": 26,
+    "type": "heal", "power": 0, "hits": 0,
+    "desc": "恢复 55% 最大生命，并获得等同 20% 最大生命的护盾。",
+    "effects": [
+      { "kind": "heal", "pct": 0.55, "flat": 30, "chance": 1 },
+      { "kind": "shield", "pct": 0.2, "chance": 1 }
+    ]
+  }
+]

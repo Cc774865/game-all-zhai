@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+backend/storage/saves/*.json
+!backend/storage/saves/.gitkeep
+.workbuddy-ai/

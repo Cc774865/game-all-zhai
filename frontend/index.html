@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>十域九王 · 回合制 RPG</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="bg-aura" aria-hidden="true"></div>
+
+  <!-- ================= 开始界面 ================= -->
+  <section id="start-screen" class="screen">
+    <div class="start-wrap">
+      <header class="hero-title">
+        <div class="hero-rune">✦</div>
+        <h1>十域九王</h1>
+        <p class="hero-sub">TURN-BASED ODYSSEY</p>
+        <p class="hero-desc">从晨曦村出发，穿过迷雾、沙海与熔岩，直到虚空王座。<br />四条道路，十片土地，九位守关者。</p>
+        <div class="hero-stats">
+          <span><b>4</b> 职业</span><span><b>10</b> 区域</span><span><b>9</b> Boss</span><span><b>24</b> 技能</span>
+        </div>
+      </header>
+
+      <div class="start-grid">
+        <div class="panel start-main">
+          <h2 class="panel-title">选择你的道路</h2>
+          <div id="class-list" class="class-list"></div>
+          <div class="name-row">
+            <label for="hero-name">旅人姓名</label>
+            <input id="hero-name" type="text" maxlength="12" placeholder="无名旅人" autocomplete="off" />
+          </div>
+          <button id="btn-new-game" class="btn btn-primary btn-lg" data-action="new-game">开始新的旅程</button>
+          <p class="hint">游戏进度会自动保存在浏览器之外的本机文件中，随时可以中断。</p>
+        </div>
+
+        <div class="panel start-side">
+          <h2 class="panel-title">继续旅程</h2>
+          <div id="start-saves" class="save-list"></div>
+          <div class="start-tips">
+            <h3>操作提示</h3>
+            <ul>
+              <li>探索区域触发遭遇战，击败敌人获得经验与装备。</li>
+              <li>战斗中可选择攻击、技能、防御或闪避姿态。</li>
+              <li>每级获得 3 点属性点，技能随施展次数成长。</li>
+              <li>击败区域 Boss 才能解锁下一片土地。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 游戏界面 ================= -->
+  <section id="game-screen" class="screen" hidden>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">✦</span>
+        <span class="brand-name">十域九王</span>
+      </div>
+      <div class="topbar-area">
+        <span id="top-area" class="area-chip">晨曦村</span>
+        <span id="top-level" class="meta-chip">Lv.1</span>
+      </div>
+      <div class="topbar-right">
+        <span class="meta-chip gold"><i>◈</i><b id="top-gold">0</b></span>
+        <span class="meta-chip time" id="top-time">00:00</span>
+        <button id="btn-home" class="btn btn-ghost btn-sm">主菜单</button>
+        <button id="btn-save" class="btn btn-ghost btn-sm">保存进度</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- 角色面板 -->
+      <aside class="panel char-panel" id="char-panel"></aside>
+
+      <!-- 主视图 -->
+      <main class="main-col">
+        <section id="map-view" class="view">
+          <div id="area-detail" class="area-detail"></div>
+          <div class="section-head">
+            <h2>世界地图</h2>
+            <span class="section-sub">击败守关者以解锁下一片土地</span>
+          </div>
+          <div id="map-grid" class="map-grid"></div>
+        </section>
+
+        <section id="battle-view" class="view" hidden>
+          <div id="battle-root"></div>
+        </section>
+      </main>
+
+      <!-- 侧栏 -->
+      <aside class="panel side-panel">
+        <nav class="tabs" id="tabs">
+          <button class="tab active" data-tab="bag" data-action="tab">背包</button>
+          <button class="tab" data-tab="skills" data-action="tab">技能</button>
+          <button class="tab" data-tab="saves" data-action="tab">存档</button>
+        </nav>
+        <div class="tab-body" id="tab-bag"></div>
+        <div class="tab-body" id="tab-skills" hidden></div>
+        <div class="tab-body" id="tab-saves" hidden></div>
+      </aside>
+    </div>
+  </section>
+
+  <div id="modal-root"></div>
+  <div id="toast-root" class="toast-root"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

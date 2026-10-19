@@ -1,0 +1,1265 @@
+{
+  "enemies": [
+    {
+      "id": "e_wolf",
+      "name": "迷雾狼",
+      "emoji": "🐺",
+      "level": 2,
+      "hp": 52,
+      "atk": 12,
+      "def": 4,
+      "agi": 9,
+      "crit": 5,
+      "exp": 24,
+      "gold": 10,
+      "skills": [
+        {
+          "name": "撕咬",
+          "power": 1.35,
+          "type": "physical",
+          "chance": 0.35
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_hp",
+          "chance": 0.22,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_boar",
+      "name": "狂暴野猪",
+      "emoji": "🐗",
+      "level": 2,
+      "hp": 68,
+      "atk": 13,
+      "def": 6,
+      "agi": 5,
+      "crit": 3,
+      "exp": 26,
+      "gold": 11,
+      "skills": [
+        {
+          "name": "野蛮冲撞",
+          "power": 1.5,
+          "type": "physical",
+          "chance": 0.3
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_hp",
+          "chance": 0.18,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_bandit",
+      "name": "林间盗匪",
+      "emoji": "🗡️",
+      "level": 3,
+      "hp": 60,
+      "atk": 14,
+      "def": 5,
+      "agi": 11,
+      "crit": 8,
+      "exp": 30,
+      "gold": 20,
+      "skills": [
+        {
+          "name": "偷袭",
+          "power": 1.45,
+          "type": "physical",
+          "chance": 0.35
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_hp",
+          "chance": 0.25,
+          "qty": 1
+        },
+        {
+          "item": "potion_mp",
+          "chance": 0.12,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_bat",
+      "name": "洞窟蝠群",
+      "emoji": "🦇",
+      "level": 4,
+      "hp": 58,
+      "atk": 15,
+      "def": 4,
+      "agi": 16,
+      "crit": 8,
+      "exp": 34,
+      "gold": 13,
+      "skills": [
+        {
+          "name": "音波尖啸",
+          "power": 1.2,
+          "type": "magic",
+          "chance": 0.3
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_mp",
+          "chance": 0.2,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_kobold",
+      "name": "矿洞狗头人",
+      "emoji": "⛏️",
+      "level": 4,
+      "hp": 78,
+      "atk": 16,
+      "def": 8,
+      "agi": 8,
+      "crit": 5,
+      "exp": 38,
+      "gold": 18,
+      "skills": [
+        {
+          "name": "矿镐猛击",
+          "power": 1.55,
+          "type": "physical",
+          "chance": 0.3
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_hp",
+          "chance": 0.2,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_stone_guard",
+      "name": "石像守卫",
+      "emoji": "🗿",
+      "level": 5,
+      "hp": 110,
+      "atk": 15,
+      "def": 16,
+      "agi": 4,
+      "crit": 3,
+      "exp": 44,
+      "gold": 24,
+      "skills": [
+        {
+          "name": "碎石砸击",
+          "power": 1.4,
+          "type": "physical",
+          "chance": 0.3
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_hp_big",
+          "chance": 0.1,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_toad",
+      "name": "腐沼巨蟾",
+      "emoji": "🐸",
+      "level": 6,
+      "hp": 120,
+      "atk": 19,
+      "def": 8,
+      "agi": 7,
+      "crit": 4,
+      "exp": 48,
+      "gold": 22,
+      "skills": [
+        {
+          "name": "毒液喷吐",
+          "power": 1.25,
+          "type": "magic",
+          "chance": 0.35,
+          "effects": [
+            {
+              "kind": "dot",
+              "id": "poison",
+              "rounds": 3,
+              "chance": 0.7
+            }
+          ]
+        }
+      ],
+      "drops": [
+        {
+          "item": "antidote",
+          "chance": 0.2,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_bog_witch",
+      "name": "沼泽巫女",
+      "emoji": "🧙‍♀️",
+      "level": 7,
+      "hp": 105,
+      "atk": 22,
+      "def": 7,
+      "agi": 10,
+      "crit": 6,
+      "exp": 55,
+      "gold": 30,
+      "skills": [
+        {
+          "name": "腐蚀诅咒",
+          "power": 1.6,
+          "type": "magic",
+          "chance": 0.4,
+          "effects": [
+            {
+              "kind": "debuff",
+              "stat": "def",
+              "pct": -0.25,
+              "rounds": 2,
+              "chance": 0.6
+            }
+          ]
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_mp",
+          "chance": 0.25,
+          "qty": 1
+        },
+        {
+          "item": "antidote",
+          "chance": 0.15,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_serpent",
+      "name": "沼泽巨蟒",
+      "emoji": "🐍",
+      "level": 7,
+      "hp": 140,
+      "atk": 21,
+      "def": 10,
+      "agi": 13,
+      "crit": 8,
+      "exp": 58,
+      "gold": 28,
+      "skills": [
+        {
+          "name": "缠绕绞杀",
+          "power": 1.7,
+          "type": "physical",
+          "chance": 0.35
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_hp",
+          "chance": 0.22,
+          "qty": 2
+        }
+      ]
+    },
+    {
+      "id": "e_scorpion",
+      "name": "沙海毒蝎",
+      "emoji": "🦂",
+      "level": 8,
+      "hp": 135,
+      "atk": 24,
+      "def": 12,
+      "agi": 14,
+      "crit": 10,
+      "exp": 62,
+      "gold": 30,
+      "skills": [
+        {
+          "name": "毒针",
+          "power": 1.3,
+          "type": "physical",
+          "chance": 0.4,
+          "effects": [
+            {
+              "kind": "dot",
+              "id": "poison",
+              "rounds": 3,
+              "chance": 0.8
+            }
+          ]
+        }
+      ],
+      "drops": [
+        {
+          "item": "antidote",
+          "chance": 0.18,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_sand_raider",
+      "name": "沙盗首领",
+      "emoji": "🏴",
+      "level": 9,
+      "hp": 165,
+      "atk": 26,
+      "def": 11,
+      "agi": 12,
+      "crit": 12,
+      "exp": 70,
+      "gold": 45,
+      "skills": [
+        {
+          "name": "弯刀连斩",
+          "power": 0.9,
+          "type": "physical",
+          "hits": 2,
+          "chance": 0.35
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_hp_big",
+          "chance": 0.14,
+          "qty": 1
+        },
+        {
+          "item": "potion_mp",
+          "chance": 0.2,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_mummy",
+      "name": "不朽木乃伊",
+      "emoji": "🧟",
+      "level": 9,
+      "hp": 190,
+      "atk": 23,
+      "def": 16,
+      "agi": 6,
+      "crit": 4,
+      "exp": 72,
+      "gold": 34,
+      "skills": [
+        {
+          "name": "腐朽之触",
+          "power": 1.45,
+          "type": "magic",
+          "chance": 0.3,
+          "effects": [
+            {
+              "kind": "debuff",
+              "stat": "atk",
+              "pct": -0.2,
+              "rounds": 2,
+              "chance": 0.5
+            }
+          ]
+        }
+      ],
+      "drops": [
+        {
+          "item": "elixir",
+          "chance": 0.06,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_ice_wolf",
+      "name": "霜牙狼",
+      "emoji": "🐕‍🦺",
+      "level": 10,
+      "hp": 170,
+      "atk": 28,
+      "def": 13,
+      "agi": 18,
+      "crit": 12,
+      "exp": 78,
+      "gold": 36,
+      "skills": [
+        {
+          "name": "霜咬",
+          "power": 1.5,
+          "type": "physical",
+          "chance": 0.35,
+          "effects": [
+            {
+              "kind": "debuff",
+              "stat": "agi",
+              "pct": -0.25,
+              "rounds": 2,
+              "chance": 0.5
+            }
+          ]
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_hp_big",
+          "chance": 0.15,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_frost_yeti",
+      "name": "冰原雪怪",
+      "emoji": "🦍",
+      "level": 11,
+      "hp": 240,
+      "atk": 30,
+      "def": 18,
+      "agi": 7,
+      "crit": 6,
+      "exp": 88,
+      "gold": 42,
+      "skills": [
+        {
+          "name": "冰霜重拳",
+          "power": 1.7,
+          "type": "physical",
+          "chance": 0.35
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_hp_big",
+          "chance": 0.18,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_snow_archer",
+      "name": "雪原猎手",
+      "emoji": "🎯",
+      "level": 11,
+      "hp": 155,
+      "atk": 31,
+      "def": 10,
+      "agi": 20,
+      "crit": 18,
+      "exp": 85,
+      "gold": 48,
+      "skills": [
+        {
+          "name": "穿甲冰箭",
+          "power": 1.65,
+          "type": "physical",
+          "chance": 0.4
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_mp",
+          "chance": 0.22,
+          "qty": 2
+        }
+      ]
+    },
+    {
+      "id": "e_ghost",
+      "name": "哀嚎怨灵",
+      "emoji": "👻",
+      "level": 12,
+      "hp": 165,
+      "atk": 33,
+      "def": 8,
+      "agi": 19,
+      "crit": 10,
+      "exp": 92,
+      "gold": 40,
+      "skills": [
+        {
+          "name": "灵魂撕裂",
+          "power": 1.75,
+          "type": "magic",
+          "chance": 0.4
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_mp",
+          "chance": 0.25,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_skeleton",
+      "name": "骸骨战士",
+      "emoji": "💀",
+      "level": 13,
+      "hp": 230,
+      "atk": 34,
+      "def": 20,
+      "agi": 11,
+      "crit": 8,
+      "exp": 98,
+      "gold": 45,
+      "skills": [
+        {
+          "name": "亡者斩",
+          "power": 1.6,
+          "type": "physical",
+          "chance": 0.35
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_hp_big",
+          "chance": 0.2,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_necromancer",
+      "name": "墓园死灵法师",
+      "emoji": "🧙",
+      "level": 13,
+      "hp": 180,
+      "atk": 38,
+      "def": 12,
+      "agi": 13,
+      "crit": 8,
+      "exp": 105,
+      "gold": 60,
+      "skills": [
+        {
+          "name": "腐蚀之球",
+          "power": 1.9,
+          "type": "magic",
+          "chance": 0.45,
+          "effects": [
+            {
+              "kind": "dot",
+              "id": "poison",
+              "rounds": 3,
+              "chance": 0.6
+            }
+          ]
+        }
+      ],
+      "drops": [
+        {
+          "item": "elixir",
+          "chance": 0.1,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_lava_hound",
+      "name": "熔岩猎犬",
+      "emoji": "🔥",
+      "level": 14,
+      "hp": 240,
+      "atk": 40,
+      "def": 18,
+      "agi": 20,
+      "crit": 14,
+      "exp": 112,
+      "gold": 50,
+      "skills": [
+        {
+          "name": "烈焰撕咬",
+          "power": 1.7,
+          "type": "physical",
+          "chance": 0.4,
+          "effects": [
+            {
+              "kind": "dot",
+              "id": "burn",
+              "rounds": 2,
+              "chance": 0.5
+            }
+          ]
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_hp_big",
+          "chance": 0.22,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_flame_imp",
+      "name": "烈焰小鬼",
+      "emoji": "😈",
+      "level": 15,
+      "hp": 200,
+      "atk": 43,
+      "def": 14,
+      "agi": 23,
+      "crit": 12,
+      "exp": 118,
+      "gold": 55,
+      "skills": [
+        {
+          "name": "地狱火",
+          "power": 1.85,
+          "type": "magic",
+          "chance": 0.45
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_mp",
+          "chance": 0.25,
+          "qty": 2
+        }
+      ]
+    },
+    {
+      "id": "e_magma_golem",
+      "name": "熔核魔像",
+      "emoji": "🌋",
+      "level": 15,
+      "hp": 330,
+      "atk": 40,
+      "def": 28,
+      "agi": 6,
+      "crit": 5,
+      "exp": 130,
+      "gold": 65,
+      "skills": [
+        {
+          "name": "岩浆重锤",
+          "power": 1.9,
+          "type": "physical",
+          "chance": 0.35
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_hp_big",
+          "chance": 0.25,
+          "qty": 2
+        }
+      ]
+    },
+    {
+      "id": "e_temple_guard",
+      "name": "神殿守卫",
+      "emoji": "🗡️",
+      "level": 16,
+      "hp": 320,
+      "atk": 46,
+      "def": 30,
+      "agi": 18,
+      "crit": 12,
+      "exp": 135,
+      "gold": 70,
+      "skills": [
+        {
+          "name": "圣光斩",
+          "power": 1.8,
+          "type": "physical",
+          "chance": 0.4
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_hp_big",
+          "chance": 0.25,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_storm_harpy",
+      "name": "风暴鹰身女妖",
+      "emoji": "🦅",
+      "level": 17,
+      "hp": 265,
+      "atk": 50,
+      "def": 16,
+      "agi": 28,
+      "crit": 20,
+      "exp": 142,
+      "gold": 80,
+      "skills": [
+        {
+          "name": "雷羽风暴",
+          "power": 0.95,
+          "type": "magic",
+          "hits": 2,
+          "chance": 0.4
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_mp",
+          "chance": 0.28,
+          "qty": 2
+        }
+      ]
+    },
+    {
+      "id": "e_seraph_sentinel",
+      "name": "炽天使哨兵",
+      "emoji": "👼",
+      "level": 18,
+      "hp": 380,
+      "atk": 48,
+      "def": 26,
+      "agi": 22,
+      "crit": 15,
+      "exp": 155,
+      "gold": 90,
+      "skills": [
+        {
+          "name": "裁决之光",
+          "power": 2.0,
+          "type": "magic",
+          "chance": 0.4
+        }
+      ],
+      "drops": [
+        {
+          "item": "elixir",
+          "chance": 0.12,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_void_wraith",
+      "name": "虚空幽魂",
+      "emoji": "🌑",
+      "level": 19,
+      "hp": 340,
+      "atk": 55,
+      "def": 20,
+      "agi": 26,
+      "crit": 18,
+      "exp": 168,
+      "gold": 95,
+      "skills": [
+        {
+          "name": "虚空侵蚀",
+          "power": 2.1,
+          "type": "magic",
+          "chance": 0.45
+        }
+      ],
+      "drops": [
+        {
+          "item": "elixir",
+          "chance": 0.14,
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "e_abyss_knight",
+      "name": "深渊骑士",
+      "emoji": "🏴‍☠️",
+      "level": 20,
+      "hp": 460,
+      "atk": 58,
+      "def": 34,
+      "agi": 20,
+      "crit": 16,
+      "exp": 180,
+      "gold": 110,
+      "skills": [
+        {
+          "name": "深渊断罪",
+          "power": 2.2,
+          "type": "physical",
+          "chance": 0.4
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_hp_big",
+          "chance": 0.3,
+          "qty": 2
+        }
+      ]
+    },
+    {
+      "id": "e_shadow_twin",
+      "name": "暗影双子",
+      "emoji": "👥",
+      "level": 20,
+      "hp": 300,
+      "atk": 60,
+      "def": 22,
+      "agi": 30,
+      "crit": 24,
+      "exp": 175,
+      "gold": 105,
+      "skills": [
+        {
+          "name": "镜像连击",
+          "power": 1.1,
+          "type": "physical",
+          "hits": 2,
+          "chance": 0.45
+        }
+      ],
+      "drops": [
+        {
+          "item": "elixir",
+          "chance": 0.15,
+          "qty": 1
+        }
+      ]
+    }
+  ],
+  "bosses": [
+    {
+      "id": "b_fenrir",
+      "name": "森林巨狼 · 芬里尔",
+      "emoji": "🐺",
+      "level": 4,
+      "hp": 320,
+      "atk": 18,
+      "def": 9,
+      "agi": 12,
+      "crit": 10,
+      "exp": 150,
+      "gold": 120,
+      "title": "迷雾森林的统治者",
+      "enrage": 0.3,
+      "skills": [
+        {
+          "name": "裂喉撕咬",
+          "power": 1.9,
+          "type": "physical",
+          "chance": 0.4
+        },
+        {
+          "name": "月下长嚎",
+          "power": 0,
+          "type": "buff",
+          "chance": 0.2,
+          "effects": [
+            {
+              "kind": "buff",
+              "stat": "atk",
+              "pct": 0.3,
+              "rounds": 3,
+              "chance": 1
+            }
+          ]
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_hp_big",
+          "chance": 0.8,
+          "qty": 2
+        }
+      ],
+      "guaranteed_equipment": true
+    },
+    {
+      "id": "b_golden",
+      "name": "矿洞魔像 · 戈尔登",
+      "emoji": "🗿",
+      "level": 6,
+      "hp": 500,
+      "atk": 24,
+      "def": 20,
+      "agi": 6,
+      "crit": 5,
+      "exp": 260,
+      "gold": 200,
+      "title": "沉睡千年的岩石之心",
+      "enrage": 0.3,
+      "skills": [
+        {
+          "name": "大地震击",
+          "power": 2.0,
+          "type": "physical",
+          "chance": 0.4,
+          "effects": [
+            {
+              "kind": "stun",
+              "rounds": 1,
+              "chance": 0.25
+            }
+          ]
+        },
+        {
+          "name": "岩石护体",
+          "power": 0,
+          "type": "buff",
+          "chance": 0.2,
+          "effects": [
+            {
+              "kind": "buff",
+              "stat": "def",
+              "pct": 0.5,
+              "rounds": 3,
+              "chance": 1
+            }
+          ]
+        }
+      ],
+      "drops": [
+        {
+          "item": "potion_hp_big",
+          "chance": 0.9,
+          "qty": 2
+        }
+      ],
+      "guaranteed_equipment": true
+    },
+    {
+      "id": "b_morgana",
+      "name": "沼泽巫婆 · 摩伽娜",
+      "emoji": "🧙‍♀️",
+      "level": 8,
+      "hp": 700,
+      "atk": 32,
+      "def": 14,
+      "agi": 14,
+      "crit": 10,
+      "exp": 420,
+      "gold": 280,
+      "title": "以毒雾豢养亡魂的女巫",
+      "enrage": 0.3,
+      "skills": [
+        {
+          "name": "瘟疫爆发",
+          "power": 1.8,
+          "type": "magic",
+          "chance": 0.4,
+          "effects": [
+            {
+              "kind": "dot",
+              "id": "poison",
+              "rounds": 4,
+              "chance": 0.8
+            }
+          ]
+        },
+        {
+          "name": "生命汲取",
+          "power": 1.4,
+          "type": "magic",
+          "chance": 0.25,
+          "lifesteal": 0.6
+        }
+      ],
+      "drops": [
+        {
+          "item": "elixir",
+          "chance": 0.5,
+          "qty": 1
+        }
+      ],
+      "guaranteed_equipment": true
+    },
+    {
+      "id": "b_azra",
+      "name": "沙虫之王 · 阿兹拉",
+      "emoji": "🪱",
+      "level": 10,
+      "hp": 950,
+      "atk": 40,
+      "def": 20,
+      "agi": 12,
+      "crit": 10,
+      "exp": 600,
+      "gold": 380,
+      "title": "沙海之下永不餍足的巨口",
+      "enrage": 0.25,
+      "skills": [
+        {
+          "name": "流沙吞噬",
+          "power": 2.2,
+          "type": "physical",
+          "chance": 0.4
+        },
+        {
+          "name": "沙暴",
+          "power": 1.2,
+          "type": "magic",
+          "chance": 0.3,
+          "effects": [
+            {
+              "kind": "debuff",
+              "stat": "agi",
+              "pct": -0.3,
+              "rounds": 2,
+              "chance": 0.7
+            }
+          ]
+        }
+      ],
+      "drops": [
+        {
+          "item": "elixir",
+          "chance": 0.6,
+          "qty": 2
+        }
+      ],
+      "guaranteed_equipment": true
+    },
+    {
+      "id": "b_ymir",
+      "name": "冰霜巨人 · 尤弥尔",
+      "emoji": "🧊",
+      "level": 12,
+      "hp": 1250,
+      "atk": 48,
+      "def": 30,
+      "agi": 9,
+      "crit": 8,
+      "exp": 820,
+      "gold": 480,
+      "title": "永冻之地的最后守望",
+      "enrage": 0.25,
+      "skills": [
+        {
+          "name": "冰川重拳",
+          "power": 2.3,
+          "type": "physical",
+          "chance": 0.4,
+          "effects": [
+            {
+              "kind": "stun",
+              "rounds": 1,
+              "chance": 0.2
+            }
+          ]
+        },
+        {
+          "name": "绝对零度",
+          "power": 1.6,
+          "type": "magic",
+          "chance": 0.3,
+          "effects": [
+            {
+              "kind": "debuff",
+              "stat": "agi",
+              "pct": -0.4,
+              "rounds": 2,
+              "chance": 0.8
+            }
+          ]
+        }
+      ],
+      "drops": [
+        {
+          "item": "elixir",
+          "chance": 0.7,
+          "qty": 2
+        }
+      ],
+      "guaranteed_equipment": true
+    },
+    {
+      "id": "b_mordres",
+      "name": "亡灵领主 · 莫德雷斯",
+      "emoji": "☠️",
+      "level": 14,
+      "hp": 1600,
+      "atk": 56,
+      "def": 26,
+      "agi": 18,
+      "crit": 14,
+      "exp": 1050,
+      "gold": 620,
+      "title": "统御万骨的墓园之主",
+      "enrage": 0.25,
+      "skills": [
+        {
+          "name": "死亡之握",
+          "power": 2.1,
+          "type": "magic",
+          "chance": 0.4,
+          "lifesteal": 0.5
+        },
+        {
+          "name": "亡者军团",
+          "power": 0.9,
+          "type": "physical",
+          "hits": 3,
+          "chance": 0.3
+        }
+      ],
+      "drops": [
+        {
+          "item": "elixir",
+          "chance": 0.8,
+          "qty": 2
+        }
+      ],
+      "guaranteed_equipment": true
+    },
+    {
+      "id": "b_balrog",
+      "name": "炎魔 · 巴洛戈",
+      "emoji": "🔥",
+      "level": 16,
+      "hp": 2000,
+      "atk": 66,
+      "def": 32,
+      "agi": 20,
+      "crit": 16,
+      "exp": 1350,
+      "gold": 780,
+      "title": "深渊裂隙的焚世者",
+      "enrage": 0.2,
+      "skills": [
+        {
+          "name": "焚世烈焰",
+          "power": 2.4,
+          "type": "magic",
+          "chance": 0.4,
+          "effects": [
+            {
+              "kind": "dot",
+              "id": "burn",
+              "rounds": 3,
+              "chance": 0.85
+            }
+          ]
+        },
+        {
+          "name": "炎爪横扫",
+          "power": 1.0,
+          "type": "physical",
+          "hits": 2,
+          "chance": 0.3
+        }
+      ],
+      "drops": [
+        {
+          "item": "elixir",
+          "chance": 0.9,
+          "qty": 2
+        }
+      ],
+      "guaranteed_equipment": true
+    },
+    {
+      "id": "b_seraph",
+      "name": "堕落天使 · 塞拉芬",
+      "emoji": "🦅",
+      "level": 18,
+      "hp": 2500,
+      "atk": 74,
+      "def": 38,
+      "agi": 26,
+      "crit": 20,
+      "exp": 1750,
+      "gold": 980,
+      "title": "折断羽翼的天空审判者",
+      "enrage": 0.2,
+      "skills": [
+        {
+          "name": "审判之矛",
+          "power": 2.5,
+          "type": "magic",
+          "chance": 0.4
+        },
+        {
+          "name": "圣光回响",
+          "power": 0,
+          "type": "heal",
+          "chance": 0.15,
+          "heal_pct": 0.12
+        },
+        {
+          "name": "羽刃风暴",
+          "power": 1.05,
+          "type": "physical",
+          "hits": 3,
+          "chance": 0.25
+        }
+      ],
+      "drops": [
+        {
+          "item": "elixir",
+          "chance": 1.0,
+          "qty": 3
+        }
+      ],
+      "guaranteed_equipment": true
+    },
+    {
+      "id": "b_omega",
+      "name": "虚空之主 · 奥米伽",
+      "emoji": "🌌",
+      "level": 20,
+      "hp": 3200,
+      "atk": 86,
+      "def": 44,
+      "agi": 30,
+      "crit": 24,
+      "exp": 2400,
+      "gold": 1500,
+      "title": "吞噬世界的终焉之影",
+      "enrage": 0.2,
+      "final_boss": true,
+      "skills": [
+        {
+          "name": "湮灭之息",
+          "power": 2.6,
+          "type": "magic",
+          "chance": 0.35
+        },
+        {
+          "name": "虚空撕裂",
+          "power": 2.2,
+          "type": "physical",
+          "chance": 0.3,
+          "lifesteal": 0.4
+        },
+        {
+          "name": "时间停滞",
+          "power": 1.4,
+          "type": "magic",
+          "chance": 0.2,
+          "effects": [
+            {
+              "kind": "stun",
+              "rounds": 1,
+              "chance": 0.4
+            }
+          ]
+        }
+      ],
+      "drops": [
+        {
+          "item": "elixir",
+          "chance": 1.0,
+          "qty": 5
+        }
+      ],
+      "guaranteed_equipment": true
+    }
+  ]
+}

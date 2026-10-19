@@ -1,0 +1,48 @@
+{
+  "rarities": {
+    "common": { "name": "普通", "mult": 1.0, "color": "#9aa4b2", "weight": 52 },
+    "uncommon": { "name": "精良", "mult": 1.18, "color": "#5fd18c", "weight": 27 },
+    "rare": { "name": "稀有", "mult": 1.4, "color": "#5aa9ff", "weight": 13 },
+    "epic": { "name": "史诗", "mult": 1.65, "color": "#c07bff", "weight": 6 },
+    "legendary": { "name": "传说", "mult": 2.0, "color": "#ffb347", "weight": 2 }
+  },
+  "slots": { "weapon": "武器", "armor": "护甲", "accessory": "饰品" },
+  "templates": [
+    { "id": "w_iron_sword", "name": "铁剑", "slot": "weapon", "tier": 1, "classes": ["warrior"], "emoji": "🗡️", "stats": { "atk": 9, "crit": 2 }, "price": 60 },
+    { "id": "w_steel_blade", "name": "精钢长剑", "slot": "weapon", "tier": 2, "classes": ["warrior"], "emoji": "⚔️", "stats": { "atk": 20, "def": 3 }, "price": 220 },
+    { "id": "w_dragon_greatsword", "name": "龙牙巨剑", "slot": "weapon", "tier": 3, "classes": ["warrior"], "emoji": "🐉", "stats": { "atk": 34, "hp": 40, "crit": 4 }, "price": 620 },
+
+    { "id": "w_ash_staff", "name": "灰木法杖", "slot": "weapon", "tier": 1, "classes": ["mage"], "emoji": "🪄", "stats": { "atk": 8, "mp": 14 }, "price": 60 },
+    { "id": "w_mithril_staff", "name": "秘银法杖", "slot": "weapon", "tier": 2, "classes": ["mage"], "emoji": "🔮", "stats": { "atk": 18, "mp": 30, "crit": 3 }, "price": 220 },
+    { "id": "w_void_scepter", "name": "虚空权杖", "slot": "weapon", "tier": 3, "classes": ["mage"], "emoji": "🌌", "stats": { "atk": 32, "mp": 50 }, "price": 620 },
+
+    { "id": "w_hunting_bow", "name": "猎弓", "slot": "weapon", "tier": 1, "classes": ["ranger"], "emoji": "🏹", "stats": { "atk": 7, "agi": 4 }, "price": 60 },
+    { "id": "w_wind_bow", "name": "疾风长弓", "slot": "weapon", "tier": 2, "classes": ["ranger"], "emoji": "🌬️", "stats": { "atk": 16, "agi": 8, "crit": 5 }, "price": 220 },
+    { "id": "w_phoenix_bow", "name": "凤凰之弓", "slot": "weapon", "tier": 3, "classes": ["ranger"], "emoji": "🔥", "stats": { "atk": 28, "agi": 14, "crit": 8 }, "price": 620 },
+
+    { "id": "w_oak_hammer", "name": "橡木锤", "slot": "weapon", "tier": 1, "classes": ["cleric"], "emoji": "🔨", "stats": { "atk": 7, "mp": 10 }, "price": 60 },
+    { "id": "w_holy_scepter", "name": "圣辉权杖", "slot": "weapon", "tier": 2, "classes": ["cleric"], "emoji": "✨", "stats": { "atk": 15, "mp": 26, "def": 3 }, "price": 220 },
+    { "id": "w_dawn_hammer", "name": "黎明战锤", "slot": "weapon", "tier": 3, "classes": ["cleric"], "emoji": "🌅", "stats": { "atk": 26, "mp": 40, "hp": 30 }, "price": 620 },
+
+    { "id": "a_leather_vest", "name": "皮甲", "slot": "armor", "tier": 1, "classes": null, "emoji": "🥋", "stats": { "def": 6, "hp": 12 }, "price": 50 },
+    { "id": "a_chain_mail", "name": "锁子甲", "slot": "armor", "tier": 2, "classes": null, "emoji": "🛡️", "stats": { "def": 14, "hp": 28 }, "price": 180 },
+    { "id": "a_plate_armor", "name": "龙鳞板甲", "slot": "armor", "tier": 3, "classes": null, "emoji": "🐲", "stats": { "def": 24, "hp": 60 }, "price": 520 },
+    { "id": "a_cloth_robe", "name": "布袍", "slot": "armor", "tier": 1, "classes": ["mage", "cleric"], "emoji": "👘", "stats": { "def": 3, "mp": 16 }, "price": 50 },
+    { "id": "a_shadow_cloak", "name": "影纹斗篷", "slot": "armor", "tier": 2, "classes": ["ranger"], "emoji": "🌫️", "stats": { "def": 7, "agi": 9, "dodge": 3 }, "price": 180 },
+    { "id": "a_holy_robe", "name": "圣纹长袍", "slot": "armor", "tier": 3, "classes": ["cleric", "mage"], "emoji": "🕊️", "stats": { "def": 12, "mp": 40, "hp": 30 }, "price": 520 },
+
+    { "id": "acc_power_ring", "name": "力量指环", "slot": "accessory", "tier": 1, "classes": null, "emoji": "💍", "stats": { "atk": 6 }, "price": 70 },
+    { "id": "acc_guard_amulet", "name": "守护护符", "slot": "accessory", "tier": 1, "classes": null, "emoji": "📿", "stats": { "def": 6, "hp": 20 }, "price": 70 },
+    { "id": "acc_swift_boots", "name": "疾行靴", "slot": "accessory", "tier": 2, "classes": null, "emoji": "👟", "stats": { "agi": 9, "dodge": 4 }, "price": 210 },
+    { "id": "acc_lucky_pendant", "name": "幸运吊坠", "slot": "accessory", "tier": 2, "classes": null, "emoji": "🍀", "stats": { "crit": 9 }, "price": 210 },
+    { "id": "acc_mana_orb", "name": "秘法宝珠", "slot": "accessory", "tier": 2, "classes": null, "emoji": "🔵", "stats": { "mp": 30, "atk": 4 }, "price": 210 },
+    { "id": "acc_titan_heart", "name": "泰坦之心", "slot": "accessory", "tier": 3, "classes": null, "emoji": "❤️‍🔥", "stats": { "hp": 70, "atk": 8, "def": 8 }, "price": 600 }
+  ],
+  "consumables": {
+    "potion_hp": { "id": "potion_hp", "name": "治疗药水", "emoji": "🧴", "desc": "恢复 90 点生命", "price": 25, "heal_hp": 90 },
+    "potion_hp_big": { "id": "potion_hp_big", "name": "高级治疗药水", "emoji": "⚗️", "desc": "恢复 280 点生命", "price": 80, "heal_hp": 280 },
+    "potion_mp": { "id": "potion_mp", "name": "魔力药水", "emoji": "🫙", "desc": "恢复 45 点法力", "price": 30, "heal_mp": 45 },
+    "antidote": { "id": "antidote", "name": "解毒草", "emoji": "🌿", "desc": "清除所有负面状态", "price": 35, "cleanse": true },
+    "elixir": { "id": "elixir", "name": "秘银灵药", "emoji": "💠", "desc": "完全恢复生命与法力", "price": 200, "full": true }
+  }
+}
