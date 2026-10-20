@@ -15,6 +15,7 @@ from backend.data_loader import area_map, areas, classes, enemy_def, skills
 from backend.game import GameService
 from backend.modules import equipment as equip_mod
 from backend.modules import save as save_mod
+from backend.modules import story as story_mod
 from backend.modules.battle import Battle
 from backend.modules.character import Character, exp_to_next
 
@@ -143,7 +144,7 @@ class BattleTest(unittest.TestCase):
         service.char.mp = service.char.max_mp
         service.world["area"] = "forest"
         service.world["unlocked"] = ["village", "forest"]
-        service.do_action("challenge_boss", {})
+        service.do_action("challenge_boss", {"confirmed": True})
         self.assertTrue(service.battle.is_boss)
         service.battle.enemies[0].hp = 1
         service.battle_action({"action": "attack"})
@@ -157,7 +158,7 @@ class BattleTest(unittest.TestCase):
         service.world["area"] = "void"
         service.world["unlocked"] = ["village", "void"]
         service.char.hp = 1
-        service.do_action("challenge_boss", {})
+        service.do_action("challenge_boss", {"confirmed": True})
         service.battle.enemies[0].base_atk = 9999
         for _ in range(10):
             if service.battle is None:
@@ -166,6 +167,92 @@ class BattleTest(unittest.TestCase):
         self.assertEqual(service.world["area"], "village")
         self.assertGreater(service.char.hp, 0)
         self.assertIsNone(service.battle)
+
+
+class StoryTest(unittest.TestCase):
+    """叙事：章节覆盖、目标推进、Boss 对话闸门、进区旁白只播一次、结局解锁。"""
+
+    def test_every_area_has_chapter(self):
+        for area in areas():
+            chapter = story_mod.chapter_for(area["id"])
+            self.assertIsNotNone(chapter, f"{area['id']} 缺少章节")
+            self.assertTrue(chapter["goal"], f"{area['id']} 缺少目标文本")
+            self.assertTrue(chapter["enter"], f"{area['id']} 缺少进区旁白")
+            if area["boss"]:
+                self.assertTrue(chapter["boss_pre"], f"{area['id']} 缺少 Boss 前对话")
+                self.assertTrue(chapter["boss_post"], f"{area['id']} 缺少 Boss 后对话")
+
+    def test_prologue_and_ending_present(self):
+        self.assertTrue(story_mod.prologue()["lines"])
+        self.assertTrue(story_mod.ending()["lines"])
+        self.assertTrue(story_mod.ending()["epilogue"])
+
+    def test_objective_advances_with_bosses(self):
+        world = {"bosses": [], "finished": False}
+        first = story_mod.objective(world)
+        self.assertEqual(first["index"], 1)
+        self.assertEqual(first["area"], "village")
+        self.assertIn("薄雾森林", first["goal"])
+
+        world["bosses"] = ["forest"]
+        second = story_mod.objective(world)
+        self.assertEqual(second["index"], 3, "村庄无 Boss，击败森林后应指向第三章")
+        self.assertEqual(second["area"], "mine")
+
+        world["bosses"] = [a["id"] for a in areas() if a["boss"]]
+        world["finished"] = True
+        last = story_mod.objective(world)
+        self.assertTrue(last["finished"])
+        self.assertEqual(last["index"], last["total"])
+
+    def test_boss_dialogue_gate(self):
+        service = GameService()
+        service.new_game("对话测试", "warrior")
+        service.world["area"] = "forest"
+        service.world["unlocked"] = ["village", "forest"]
+
+        res = service.do_action("challenge_boss", {})
+        self.assertTrue(res.get("awaiting"), "首次挑战应先播对话")
+        self.assertIn("dialogue", res)
+        self.assertIsNone(service.battle, "对话阶段不应开战")
+
+        service.do_action("challenge_boss", {"confirmed": True})
+        self.assertIsNotNone(service.battle)
+        self.assertTrue(service.battle.is_boss)
+
+    def test_enter_narration_plays_once(self):
+        service = GameService()
+        service.new_game("旁白测试", "ranger")
+        res = service.do_action("travel", {"area_id": "forest"})
+        self.assertEqual(res["narration"]["kind"], "enter")
+        self.assertEqual(res["narration"]["title"], "雾里的刻痕")
+
+        service.do_action("travel", {"area_id": "village"})
+        again = service.do_action("travel", {"area_id": "forest"})
+        self.assertNotIn("narration", again, "重复进入不应再次播放旁白")
+
+    def test_ending_unlocks_and_marks_seen(self):
+        service = GameService()
+        service.new_game("终局测试", "warrior")
+        service.char.level = 20
+        service.char.hp = service.char.max_hp
+        service.world["area"] = "void"
+        service.world["unlocked"] = ["village", "void"]
+        service.world["bosses"] = [a["id"] for a in areas() if a["boss"] and a["id"] != "void"]
+
+        service.do_action("challenge_boss", {"confirmed": True})
+        service.battle.enemies[0].hp = 1
+        result = service.battle_action({"action": "attack"})
+        self.assertTrue(result["narration"]["ending_ready"], "击败终局 Boss 应解锁结局")
+
+        state = service.state()
+        self.assertTrue(state["story"]["ending_ready"])
+        self.assertIsNotNone(state["story"]["ending"])
+        self.assertTrue(state["story"]["objective"]["finished"])
+
+        seen = service.do_action("story_seen", {"kind": "ending"})
+        self.assertFalse(seen["state"]["story"]["ending_ready"], "看过的结局不应反复弹出")
+        self.assertIsNone(seen["state"]["story"]["ending"])
 
 
 class SaveTest(unittest.TestCase):

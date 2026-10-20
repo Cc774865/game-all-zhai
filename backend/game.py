@@ -8,6 +8,7 @@ from .modules import equipment as equip_mod
 from .modules import map as map_mod
 from .modules import save as save_mod
 from .modules import skill as skill_mod
+from .modules import story as story_mod
 from .modules.battle import Battle
 from .modules.character import Character
 
@@ -81,7 +82,9 @@ class GameService:
         self.session_start = time.time()
         self.last_message = f"{char.name} 的旅程开始了。"
         self.autosave()
-        return self.state()
+        state = self.state()
+        state["narration"] = story_mod.prologue()
+        return state
 
     def load_game(self, slot: str) -> dict:
         data = save_mod.load(slot)
@@ -95,6 +98,7 @@ class GameService:
         self.world.setdefault("visited", [])
         self.world.setdefault("unlocked", ["village"])
         self.world.setdefault("finished", False)
+        self.world.setdefault("story", {"ending_seen": False})
         self.battle = None
         battle_data = data.get("battle")
         if battle_data and battle_data.get("status") == "active":
@@ -171,6 +175,18 @@ class GameService:
             "saves": save_mod.list_saves(),
             "playtime": self._playtime(),
             "message": self.last_message,
+            "story": self._story_view(),
+        }
+
+    def _story_view(self) -> dict:
+        """目标条与结局页所需的叙事状态。"""
+        ending_ready = bool(self.world.get("finished")) and not (
+            self.world.get("story") or {}
+        ).get("ending_seen", False)
+        return {
+            "objective": story_mod.objective(self.world),
+            "ending_ready": ending_ready,
+            "ending": story_mod.ending() if ending_ready else None,
         }
 
     # ---------- 世界行动 ----------
@@ -194,6 +210,7 @@ class GameService:
             "use_item": self._use_item,
             "buy": self._buy,
             "allocate": self._allocate,
+            "story_seen": self._story_seen,
         }.get(action)
         if not handler:
             raise GameError(f"未知操作: {action}")
@@ -226,9 +243,15 @@ class GameService:
 
     def _travel(self, payload: dict) -> dict:
         area_id = payload.get("area_id", "")
+        first_visit = area_id not in self.world["visited"]
         info = map_mod.travel(self.world, area_id)
         self.last_message = f"抵达 {info['name']}"
-        return {"events": [{"type": "system", "text": f"你来到了【{info['name']}】。"}]}
+        out = {"events": [{"type": "system", "text": f"你来到了【{info['name']}】。"}]}
+        if first_visit:
+            narration = story_mod.entry(area_id)
+            if narration:
+                out["narration"] = narration
+        return out
 
     def _rest(self, payload: dict) -> dict:
         area = area_def(self.world["area"])
@@ -246,6 +269,23 @@ class GameService:
             raise GameError("这里没有 Boss")
         if area_id in self.world["bosses"]:
             raise GameError("该区域的 Boss 已被击败")
+
+        # 首次挑战先播 Boss 前的对话，玩家确认后再真正开战。
+        # 用一个显式的 confirmed 标记而不是服务端状态，读档/刷新都不会卡在对话里。
+        pre = story_mod.boss_lines(area_id, "boss_pre")
+        if pre and not payload.get("confirmed"):
+            boss = enemy_def(area["boss"])
+            return {
+                "awaiting": True,
+                "dialogue": {
+                    "kind": "boss_pre",
+                    "kicker": "守关者",
+                    "title": boss["name"],
+                    "lines": pre,
+                },
+                "events": [],
+            }
+
         self.battle = Battle(self.char, [area["boss"]], area_id, is_boss=True, boss_id=area["boss"])
         self.last_message = "Boss 战开始！"
         return {"battle": self.battle.view(), "events": []}
@@ -285,6 +325,12 @@ class GameService:
         label = {"hp": "生命", "mp": "法力", "atk": "攻击", "def": "防御", "agi": "敏捷"}.get(stat, stat)
         return {"events": [{"type": "system", "text": f"{label} +1"}]}
 
+    def _story_seen(self, payload: dict) -> dict:
+        """标记结局已观看，避免每次刷新都弹出结局页。"""
+        if payload.get("kind") == "ending":
+            self.world.setdefault("story", {})["ending_seen"] = True
+        return {"events": []}
+
     # ---------- 战斗 ----------
     def battle_action(self, payload: dict) -> dict:
         self._require()
@@ -296,13 +342,24 @@ class GameService:
 
         if status == "won":
             if self.battle.is_boss and self.battle.boss_id:
-                unlocked = map_mod.unlock_next(self.world, self.world["area"])
+                area_id = self.world["area"]
+                boss = enemy_def(self.battle.boss_id)
+                unlocked = map_mod.unlock_next(self.world, area_id)
                 if unlocked:
                     result["unlocked_areas"] = unlocked
                     result["events"].append({
                         "type": "system",
                         "text": "🗺️ 新区域解锁：" + "、".join(a["name"] for a in unlocked),
                     })
+                post = story_mod.boss_lines(area_id, "boss_post")
+                if post:
+                    result["narration"] = {
+                        "kind": "boss_post",
+                        "kicker": "守关者",
+                        "title": boss["name"],
+                        "lines": post,
+                        "ending_ready": bool(self.world.get("finished")),
+                    }
             self.last_message = "战斗胜利！"
             self.battle = None
         elif status == "lost":

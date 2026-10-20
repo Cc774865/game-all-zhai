@@ -278,6 +278,26 @@ const UI = (() => {
     return `<ol class="route">${items}</ol>`;
   }
 
+  /* ---------- 当前目标 ---------- */
+  function objective(story) {
+    if (!story || !story.objective) return '';
+    const o = story.objective;
+    const total = o.total || 10;
+    const killed = Math.max(0, Math.min(o.cleared || 0, total - 1));
+    const barPct = total > 1 ? (killed / (total - 1)) * 100 : 0;
+    const kicker = o.finished ? '终章 · 十域已无守关者' : `第 ${o.index} 章 · 共 ${total} 章`;
+    return `
+      <div class="ob-main">
+        <span class="ob-kicker">${esc(kicker)}</span>
+        <h3 class="ob-title">${esc(o.title)}</h3>
+        <p class="ob-goal">${esc(o.goal)}</p>
+      </div>
+      <div class="ob-side">
+        <span class="ob-count">守关者 <b>${killed}</b> / ${total - 1}</span>
+        <div class="bar ob-bar"><i style="width:${barPct.toFixed(0)}%"></i></div>
+      </div>`;
+  }
+
   /* ---------- 背包 ---------- */
   function bag(char) {
     if (!char.inventory.length) {
@@ -530,6 +550,6 @@ const UI = (() => {
   return {
     esc, pct, fmtTime, statText, rarityColor,
     classList, saveList, characterPanel, areaDetail, mapGrid, bag, skillList,
-    battleView, resultCard,
+    objective, battleView, resultCard,
   };
 })();

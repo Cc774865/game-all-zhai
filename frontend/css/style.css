@@ -769,6 +769,51 @@ button { font-family: inherit; color: inherit; }
 /* ------------------------------------------------------------
    世界：行旅图
    ------------------------------------------------------------ */
+/* 当前目标：一行贯穿面板，永远指向下一个守关者 */
+.objective {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 13px 16px;
+  margin-bottom: 18px;
+  background: linear-gradient(90deg, rgba(var(--accent-rgb), .085), transparent 72%);
+  border-left: 2px solid rgba(var(--accent-rgb), .55);
+  border-bottom: 1px solid var(--line);
+}
+.ob-main { flex: 1; min-width: 0; }
+.ob-kicker {
+  display: block;
+  font-size: 10.5px;
+  letter-spacing: .26em;
+  color: rgb(var(--accent-rgb));
+  margin-bottom: 5px;
+}
+.ob-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: .08em;
+  color: var(--bone);
+  margin: 0 0 3px;
+}
+.ob-goal {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--bone-dim);
+}
+.ob-side { flex: 0 0 132px; text-align: right; }
+.ob-count { font-size: 11px; letter-spacing: .14em; color: var(--bone-faint); }
+.ob-count b {
+  font-family: var(--font-display);
+  font-size: 13px;
+  color: var(--brass);
+}
+.ob-bar { margin-top: 7px; height: 4px; background: rgba(233, 227, 214, .12); }
+.ob-bar > i { background: var(--brass); }
+.objective.done { border-left-color: var(--sage); }
+.objective.done .ob-kicker { color: var(--sage); }
+
 .area-detail {
   position: relative;
   margin-bottom: 24px;
@@ -1722,6 +1767,33 @@ body.compact .ad-banner { height: 148px; }
   border-bottom: 1px solid var(--line);
   font-size: var(--fs-sm);
   color: var(--bone-dim);
+}
+
+/* 音量滑杆：细轨 + 铜色滑块，和整体线条风格一致 */
+.vol {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 148px;
+  height: 3px;
+  background: var(--line-2);
+  outline: none;
+  cursor: pointer;
+}
+.vol::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--brass);
+  border: 1px solid rgba(0, 0, 0, .5);
+}
+.vol::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--brass);
 }
 .switch {
   position: relative;

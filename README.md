@@ -1,7 +1,8 @@
 # 十域九王 · 回合制 RPG
 
 一个可完整通关的**全栈回合制 RPG**：Python 标准库后端（REST API + 文件存档）+ 原生 JavaScript 单页前端。
-四条职业路线、十片地图区域、九位守关 Boss，支持闪避判定、升级加点、随机掉落、技能熟练度成长，以及**战斗中途存档续玩**。
+四条职业路线、十片地图区域、九位守关 Boss、十章主线剧情，支持闪避判定、升级加点、随机掉落、技能熟练度成长、
+**战斗中途存档续玩**，以及**零素材的实时合成音乐与音效**。
 
 ![开始界面](docs/ui-start.png)
 
@@ -24,7 +25,7 @@ python run.py --no-browser       # 不自动打开浏览器
 运行测试：
 
 ```bash
-python tests/test_game.py        # 12 项测试：内容完整性、战斗、掉落、存档往返、中断续玩
+python tests/test_game.py        # 18 项测试：内容完整性、战斗、掉落、叙事、存档往返、中断续玩
 ```
 
 ## 功能对照
@@ -42,6 +43,8 @@ python tests/test_game.py        # 12 项测试：内容完整性、战斗、掉
 | 技能成长 | 每施展一次 +1 熟练度，最高 5 级，每级 +15% 技能倍率 |
 | 文件存档 | JSON 存档（自动 + 3 个手动槽位），原子写入，含战斗中状态 |
 | 中断后继续 | 每回合自动存档；读档可回到战斗中的具体回合、血量、Buff 与敌人状态 |
+| 章节剧情 | 序章 + 10 章目标 + 9 段 Boss 前对话 + 9 段遗言 + 结局页，全部数据驱动 |
+| 声音 | Web Audio 实时合成的 7 首 BGM 与 14 种音效，零音频文件 |
 
 ## 界面
 
@@ -139,6 +142,57 @@ python tests/test_game.py        # 12 项测试：内容完整性、战斗、掉
 
 
 
+## 声音：仓库里没有一个音频文件
+
+音乐与音效都在浏览器里用振荡器实时合成，没有 mp3/ogg/wav，也不加载任何音频素材。
+
+| 层 | 方案 | 职责 |
+| --- | --- | --- |
+| 音效 | [ZzFX](https://github.com/KilledByAPixel/ZzFX)（MIT，1.2KB） | 按「起音/持续/释放/波形/滑音/噪声」参数一次性生成 PCM |
+| 音乐 | [TinyMusic](https://github.com/kevincennis/TinyMusic)（MIT，3KB） | 小型音序器，用 `'A3 h'` 这样的字符串写谱，一个 `Sequence` 一条声部 |
+| 编排 | 自研 `audio.js` | 音乐/音效总线、切曲淡入淡出、静音与音量持久化、首次手势解锁 |
+
+**7 首 BGM**，每首 2–3 个声部（低音 / 铺底 / 旋律），按场景而不是按区域切换，避免十首曲子互相打断：
+
+| 曲目 | 场景 | 速度与性格 |
+| --- | --- | --- |
+| `title` | 标题界面 | 72 BPM，A 小调，稀疏、悬置 |
+| `village` | 晨曦村 | 84 BPM，C 大调，温暖的三音循环 |
+| `wild` | 森林 / 矿洞 / 沙海 | 104 BPM，D 小调，行进感 |
+| `dark` | 沼泽 / 冰原 / 墓园 / 熔岩 / 神殿 / 虚空 | 88 BPM，持续低音 + 半音游移 |
+| `battle` | 普通遭遇战 | 132 BPM，八分音符推进 |
+| `boss` | 守关者 | 146 BPM，半音下行，压迫感 |
+| `ending` | 结局页 | 68 BPM，回到 C 大调 |
+
+**14 种音效**：点击、翻页、命中、暴击、法术、治疗、闪避、格挡、咆哮、战败、拾取、错误、存档、回合提示，外加胜利 / 升级 / 结局三组琶音。
+
+几个实现细节：
+
+- 切曲不是换文件，而是新曲目增益从 0 拉到 1、旧曲目 0.5 秒淡出后停止振荡器，所以换场景不会硬切；
+- 战斗音乐优先级高于区域音乐，`mood()` 检测到当前是 `battle`/`boss` 时不会覆盖；
+- 浏览器自动播放策略要求手势，`AudioContext` 在首次 `pointerdown`/`keydown` 时恢复，在此之前请求的曲目会被记住并在解锁后补播；
+- 设置里可分别开关音乐与音效、拖动音量，写入 `localStorage`；按 **M** 一键静音。
+
+![声音设置](docs/screenshots/09-audio.png)
+
+## 叙事：十把椅子
+
+`backend/data/story.json` 里是 **10 章、68 条台词、约 1300 字**正文：序章 → 每章一段进区旁白 → Boss 前对话 → Boss 遗言 → 结局。
+
+- **章节推进不存状态**。`story.py` 从「已击败的守关者」反推当前章节，找第一个没打过的 Boss。所以读档、重开、改档都不会出现「剧情和进度对不上」。
+- **三处触发**：新游戏播序章；首次踏入某区域播该区旁白（`visited` 决定只播一次）；挑战守关者前播对话。
+- **Boss 对话是确认闸门，不是服务端状态**。`challenge_boss` 第一次只返回 `dialogue` 不开战，前端播完带 `confirmed: true` 再请求一次。这样刷新页面永远不会卡在对话中间。
+- **结局**在击败奥米伽后解锁，带 6 项统计（等级 / 击败 / 守关者 / 金币 / 行程 / 用时）；看过一次写 `ending_seen`，不会每次刷新都弹。
+- **地图页顶部常驻「当前目标」**，显示章节、目标文本与守关者进度条，玩家永远知道下一步去哪。
+
+| 章节旁白 | Boss 前对话 |
+| --- | --- |
+| ![旁白](docs/screenshots/05-narrative.png) | ![Boss 对话](docs/screenshots/07-boss-dialogue.png) |
+
+| 当前目标 | 结局 |
+| --- | --- |
+| ![目标](docs/screenshots/06-objective.png) | ![结局](docs/screenshots/08-ending.png) |
+
 ## 目录结构
 
 ```
@@ -149,12 +203,13 @@ game-all zhai/
 │  ├─ server.py              HTTP 服务：REST 路由 + 静态前端托管
 │  ├─ game.py                服务层：编排各模块，维护当前存档会话
 │  ├─ data_loader.py         JSON 内容加载与缓存
-│  ├─ data/                  纯数据：职业、技能、装备、敌人、地图
+│  ├─ data/                  纯数据：职业、技能、装备、敌人、地图、剧情
 │  │  ├─ classes.json        4 职业的基础属性 / 成长 / 初始装备
 │  │  ├─ skills.json         24 个技能（4 职业 × 6）
 │  │  ├─ equipment.json      稀有度、装备模板、消耗品
 │  │  ├─ enemies.json        27 种小怪 + 9 个 Boss
-│  │  └─ areas.json          10 个区域与解锁链
+│  │  ├─ areas.json          10 个区域与解锁链
+│  │  └─ story.json          序章、10 章旁白与 Boss 对话、结局
 │  ├─ modules/
 │  │  ├─ character.py        属性计算、经验升级、加点、伤害公式
 │  │  ├─ map.py              解锁、移动、探索随机事件
@@ -162,14 +217,22 @@ game-all zhai/
 │  │  ├─ enemy.py            敌人实例、Buff/DOT/眩晕、序列化
 │  │  ├─ equipment.py        掉落生成、穿戴、背包、商店
 │  │  ├─ skill.py            技能解锁、熟练度、倍率
+│  │  ├─ story.py            章节目标、进区旁白、Boss 对话、结局
 │  │  └─ save.py             JSON 存档、原子写入、槽位管理
 │  └─ storage/saves/         存档目录（运行时生成）
 ├─ frontend/
 │  ├─ index.html             单页骨架：开场序章 / 开始界面 / 三栏游戏界面
 │  ├─ css/
 │  │  ├─ style.css           设计系统：色板、字阶、布局、组件
-│  │  └─ fx.css              特效层：星海背景、小人动画、序章、转场
-│  └─ js/                    api.js（请求）/ fx.js（星海 + 小人 + 演出）/ ui.js（渲染）/ main.js（交互）
+│  │  └─ fx.css              特效层：星海背景、小人动画、序章、转场、叙事浮层
+│  └─ js/
+│     ├─ api.js              fetch 封装
+│     ├─ audio.js            音频编排：总线、切曲、静音、音量
+│     ├─ narrative.js        叙事浮层：章节卡、逐条台词、结局页
+│     ├─ fx.js               星海 + 程序化小人 + 转场演出
+│     ├─ ui.js               纯渲染层（状态 → DOM 字符串）
+│     ├─ main.js             交互、事件委托、战斗流程
+│     └─ vendor/             ZzFX 与 TinyMusic（MIT，附许可证）
 ├─ tests/test_game.py        逻辑与存档测试
 └─ docs/screenshots/         界面截图
 ```
@@ -243,7 +306,7 @@ game-all zhai/
 | GET | `/api/state` | 当前完整状态（角色/地图/战斗/技能/存档列表） |
 | POST | `/api/new` | `{name, class_id}` 新建游戏 |
 | POST | `/api/load` | `{slot}` 读档 |
-| POST | `/api/action` | 世界操作：`explore/travel/rest/challenge_boss/equip/unequip/sell/use_item/buy/allocate/save/delete_save` |
+| POST | `/api/action` | 世界操作：`explore/travel/rest/challenge_boss/equip/unequip/sell/use_item/buy/allocate/story_seen/save/delete_save` |
 | POST | `/api/battle` | `{action: attack/skill/defend/dodge/item/flee, skill_id?, item_id?, target?}` |
 | POST | `/api/save` | `{slot}` 手动存档 |
 | POST | `/api/delete-save` | `{slot}` 删除存档 |
@@ -261,6 +324,9 @@ game-all zhai/
 | Boss | 9 | 芬里尔 / 戈尔登 / 摩伽娜 / 阿兹拉 / 尤弥尔 / 莫德雷斯 / 巴洛戈 / 塞拉芬 / 奥米伽 |
 | 装备模板 | 24 | 武器 12（分职业）、护甲 6、饰品 6 |
 | 消耗品 | 5 | 治疗、高级治疗、魔力、解毒、秘银灵药 |
+| 剧情章节 | 10 | 序章 + 十章目标，68 条台词，约 1300 字 |
+| BGM | 7 | 标题 / 村落 / 荒野 / 暗域 / 战斗 / 守关者 / 结局 |
+| 音效 | 14 + 3 组琶音 | 命中、暴击、法术、治疗、闪避、咆哮、胜负、升级…… |
 
 ## 参考与借鉴
 
@@ -272,10 +338,19 @@ game-all zhai/
 - [Levrk/PYTHON-RPG](https://github.com/Levrk/PYTHON-RPG) — 多层地牢 + 装备 + 升级的循环；
 - [1MDAFNANULLABAIG/Fantasy-RPG-Python](https://github.com/1MDAFNANULLABAIG/Fantasy-RPG-Python) — JSON 存档 + Boss 战 + 成就式进程。
 
+声音部分没有自己造轮子，直接复用了两个成熟的小库（均为 MIT，许可证随代码放在 `frontend/js/vendor/`）：
+
+- [KilledByAPixel/ZzFX](https://github.com/KilledByAPixel/ZzFX) — 用一组参数合成音效，1.2KB，js13k 圈子的事实标准；
+- [kevincennis/TinyMusic](https://github.com/kevincennis/TinyMusic) — 用音符字符串写谱的极简音序器，3KB。
+
+叙事部分调研过 [y-lohse/inkjs](https://github.com/y-lohse/inkjs) 与 [YarnSpinnerTool/YarnSpinner](https://github.com/YarnSpinnerTool/YarnSpinner)，
+两者都需要「剧本 → 编译 → 运行时」的构建链，而本项目的对话是线性旁白，用一份 JSON 加 120 行 Python 更划算，所以没有引入。
+
 差异点：这些项目多为命令行单机程序，本项目做成了**前后端分离的 Web 应用**，并把战斗状态完整纳入存档，支持真正的「关掉浏览器再回来继续打」。
 
 ## 可扩展方向
 
 - 数据全部在 `backend/data/*.json`，新增职业/区域/Boss 不需要改代码；
+- 剧情同样在 `story.json`，加一章就是加一条数据：`area / kicker / title / goal / enter / boss_pre / boss_post`；
 - `save.py` 预留了 `version` 字段，可做旧存档迁移；
 - 若要联机，可把 `GameService` 的单会话换成按玩家 ID 的多会话，并在 `battle.py` 中引入行动队列。

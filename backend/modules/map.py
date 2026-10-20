@@ -19,6 +19,7 @@ def initial_world() -> dict:
         "steps": 0,
         "playtime": 0,
         "finished": False,
+        "story": {"ending_seen": False},
     }
 
 

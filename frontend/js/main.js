@@ -9,6 +9,7 @@ const App = {
   busy: false,
   stateAt: Date.now(),
   lastLevel: 0,
+  pendingNarration: null,
 };
 
 const $ = (sel) => document.querySelector(sel);
@@ -95,6 +96,7 @@ function renderStart() {
   $('#start-screen').hidden = false;
   $('#game-screen').hidden = true;
   if (window.FX) FX.setMood('village');
+  if (window.Sound) Sound.bgm('title');
   if (!App.meta) return;
   $('#class-list').innerHTML = UI.classList(App.meta.classes, App.selectedClass);
   $('#start-saves').innerHTML = UI.saveList(App.state ? App.state.saves : [], {
@@ -139,6 +141,11 @@ function renderSide() {
 function renderMap() {
   const st = App.state;
   const idx = st.world.areas.findIndex((a) => a.id === st.area.id);
+  const ob = $('#objective');
+  if (ob) {
+    ob.innerHTML = UI.objective(st.story);
+    ob.classList.toggle('done', !!(st.story && st.story.objective && st.story.objective.finished));
+  }
   $('#area-detail').innerHTML = UI.areaDetail(st.area, st.character, idx);
   $('#map-grid').innerHTML = UI.mapGrid(st.world);
   const sub = document.querySelector('#map-view .section-sub');
@@ -176,6 +183,7 @@ function renderAll() {
     return;
   }
   if (window.FX && App.state.area) FX.setMood(App.state.area.id);
+  if (window.Sound && App.state.area) Sound.mood(App.state.area.id);
   $('#start-screen').hidden = true;
   $('#game-screen').hidden = false;
   renderTop();
@@ -220,10 +228,13 @@ function animateEvents(events) {
       }
       if (entry.miss || entry.dodge) {
         floatText(target, '闪避', 'miss');
+        if (window.Sound) Sound.sfx('miss');
       } else if (entry.heal) {
         floatText(target, `+${entry.heal}`, 'heal');
+        if (window.Sound) Sound.sfx('heal');
       } else if (entry.dmg) {
         floatText(target, `-${entry.dmg}`, entry.crit ? 'crit' : '');
+        if (window.Sound) Sound.sfx(entry.crit ? 'crit' : 'hit');
       }
     }, i * 110);
   });
@@ -247,20 +258,31 @@ async function withBusy(fn) {
 }
 
 async function act(action, payload = {}) {
-  return withBusy(async () => {
+  let out = null;
+  await withBusy(async () => {
     const hadBattle = !!App.battle;
     const res = await API.post('/api/action', { action, ...payload });
+    out = res;
     if (res.state) {
       App.state = res.state;
       App.stateAt = Date.now();
     }
-    if (res.battle) App.battle = res.battle;
+    if (res.battle) {
+      App.battle = res.battle;
+      if (window.Sound) Sound.battleMusic(res.battle.is_boss);
+    }
     (res.events || []).forEach((e) => {
       if (e.type === 'system') toast(e.text);
     });
     if (action === 'explore' && res.event) {
-      if (res.event.kind === 'gold') toast(`拾获 ${res.event.amount} 金币`, 'gold');
-      if (res.event.kind === 'item') toast(`拾获【${res.event.name}】`, 'success');
+      if (res.event.kind === 'gold') {
+        toast(`拾获 ${res.event.amount} 金币`, 'gold');
+        if (window.Sound) Sound.sfx('loot');
+      }
+      if (res.event.kind === 'item') {
+        toast(`拾获【${res.event.name}】`, 'success');
+        if (window.Sound) Sound.sfx('loot');
+      }
     }
     if (action === 'travel') App.battle = null;
 
@@ -272,16 +294,20 @@ async function act(action, payload = {}) {
     else renderAll();
     if (window.FX && kind === 'encounter') FX.impact();
   });
+  if (out && out.narration) await Narrative.play(out.narration);
+  return out;
 }
 
 async function battleAct(payload) {
   return withBusy(async () => {
+    if (window.Sound && payload.action === 'skill') Sound.sfx('magic');
     const res = await API.post('/api/battle', payload);
     const prevLevel = App.state.character ? App.state.character.level : 1;
     App.battle = res.battle;
     App.state = res.state;
     App.stateAt = Date.now();
     App.picker = null;
+    if (res.narration) App.pendingNarration = res.narration;
 
     const status = res.battle ? res.battle.status : 'active';
     const kind = status === 'won' ? 'victory'
@@ -289,6 +315,15 @@ async function battleAct(payload) {
         : status === 'fled' ? 'soft' : null;
     if (window.FX && FX.scene) await FX.scene(kind, renderAll);
     else renderAll();
+
+    if (window.Sound) {
+      if (status === 'active') Sound.battleMusic(res.battle.is_boss);
+      else {
+        Sound.mood(App.state.area.id);
+        if (status === 'won') Sound.sfx('victory');
+        if (status === 'lost') Sound.sfx('defeat');
+      }
+    }
 
     if (window.FX && kind === 'victory') {
       FX.impact();
@@ -301,6 +336,7 @@ async function battleAct(payload) {
       setTimeout(() => {
         toast(`升级！当前 Lv.${res.state.character.level}，获得 3 点属性点`, 'gold');
         if (window.FX) FX.levelUp();
+        if (window.Sound) Sound.sfx('levelup');
       }, 400);
     }
     if (res.unlocked_areas && res.unlocked_areas.length) {
@@ -316,7 +352,33 @@ async function loadGame(slot) {
     App.stateAt = Date.now();
     enterGame('dive');
     toast('读取存档成功', 'success');
+    if (state.story && state.story.ending_ready) setTimeout(showEnding, 900);
   });
+}
+
+/* ---------------- 结局 ---------------- */
+function endingStats() {
+  const st = App.state;
+  return {
+    level: st.character.level,
+    kills: st.character.kills || 0,
+    gold: st.character.gold,
+    playtime: st.playtime,
+    bosses: (st.world.bosses || []).length,
+    steps: st.world.steps || 0,
+  };
+}
+
+async function showEnding() {
+  const st = App.state;
+  const payload = st && st.story && st.story.ending;
+  if (!payload) return;
+  if (window.Sound) Sound.bgm('ending');
+  await Narrative.play({ ...payload, kind: 'ending' }, { stats: endingStats() });
+  try {
+    await API.post('/api/action', { action: 'story_seen', kind: 'ending' });
+  } catch (e) { /* 标记失败不阻塞玩家 */ }
+  if (window.Sound) Sound.mood(st.area.id);
 }
 
 /* ---------------- 弹窗内容 ---------------- */
@@ -395,6 +457,18 @@ function openSettings() {
       <div class="set-row"><span>紧凑布局</span>
         <button class="switch ${d.compact ? 'on' : ''}" data-action="toggle-setting" data-key="compact" aria-label="紧凑布局"><i></i></button></div>
     </div>
+    <div class="set-group">
+      <div class="set-label">声音</div>
+      <div class="set-row"><span>背景音乐</span>
+        <button class="switch ${Sound.settings.music ? 'on' : ''}" data-action="toggle-audio" data-key="music" aria-label="背景音乐"><i></i></button></div>
+      <div class="set-row"><span>音乐音量</span>
+        <input class="vol" type="range" min="0" max="100" value="${Math.round(Sound.settings.musicVol * 100)}" data-audio="musicVol" aria-label="音乐音量" /></div>
+      <div class="set-row"><span>音效</span>
+        <button class="switch ${Sound.settings.sfx ? 'on' : ''}" data-action="toggle-audio" data-key="sfx" aria-label="音效"><i></i></button></div>
+      <div class="set-row"><span>音效音量</span>
+        <input class="vol" type="range" min="0" max="100" value="${Math.round(Sound.settings.sfxVol * 100)}" data-audio="sfxVol" aria-label="音效音量" /></div>
+    </div>
+    <p class="m-sub" style="margin-top:4px">音乐与音效由 Web Audio 实时合成，不加载任何音频文件。按 M 可快速静音。</p>
     <div style="text-align:right;margin-top:18px">
       <button class="btn" data-action="close-modal">完成</button>
     </div>`);
@@ -402,10 +476,11 @@ function openSettings() {
 
 /* ---------------- 事件委托 ---------------- */
 function bindEvents() {
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', async (e) => {
     const el = e.target.closest('[data-action]');
     if (!el) return;
     const action = el.dataset.action;
+    if (window.Sound && !action.startsWith('battle-') && action !== 'target') Sound.sfx('click');
 
     if (action === 'close-modal') {
       closeModal();
@@ -432,6 +507,7 @@ function bindEvents() {
               FX.chapter(state.area.name, `${state.character.name} · ${cls ? cls.name : state.character.class_name}`);
             }, 680);
           }
+          if (state.narration) setTimeout(() => Narrative.play(state.narration), 2950);
           toast('旅程开始。先去迷雾森林试试身手吧。', 'success');
         });
         break;
@@ -450,6 +526,14 @@ function bindEvents() {
         Settings.set(el.dataset.key, !Settings.data[el.dataset.key]);
         openSettings();
         break;
+
+      case 'toggle-audio': {
+        const key = el.dataset.key;
+        if (key === 'music') Sound.setMusic(!Sound.settings.music);
+        else Sound.setSfx(!Sound.settings.sfx);
+        openSettings();
+        break;
+      }
 
       case 'load':
         closeModal();
@@ -499,9 +583,14 @@ function bindEvents() {
         act('explore');
         break;
 
-      case 'challenge-boss':
-        confirmModal('挑战守关者', 'Boss 战无法逃跑，确认现在开战？', () => act('challenge_boss'));
+      case 'challenge-boss': {
+        const res = await act('challenge_boss');
+        if (res && res.dialogue) {
+          await Narrative.play(res.dialogue);
+          await act('challenge_boss', { confirmed: true });
+        }
         break;
+      }
 
       case 'rest':
         act('rest');
@@ -583,17 +672,32 @@ function bindEvents() {
         battleAct({ action: 'flee' });
         break;
 
-      case 'battle-continue':
+      case 'battle-continue': {
         App.battle = null;
         App.picker = null;
         App.selectedTarget = null;
         if (window.FX && FX.scene) FX.scene('soft', renderAll);
         else renderAll();
+        const pending = App.pendingNarration;
+        App.pendingNarration = null;
+        if (pending) {
+          await Narrative.play(pending);
+          if (pending.ending_ready) await showEnding();
+        }
         break;
+      }
 
       default:
         break;
     }
+  });
+
+  document.addEventListener('input', (e) => {
+    const el = e.target.closest('[data-audio]');
+    if (!el) return;
+    const v = Number(el.value) / 100;
+    if (el.dataset.audio === 'musicVol') Sound.setMusicVol(v);
+    else Sound.setSfxVol(v);
   });
 
   $('#btn-save').addEventListener('click', openSaveDialog);
@@ -618,8 +722,16 @@ function bindEvents() {
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      if (Narrative.open) { Narrative.close(); return; }
       if ($('#modal-root').innerHTML) closeModal();
       else if (App.picker) { App.picker = null; renderBattle(); }
+      return;
+    }
+    if ((e.key === 'm' || e.key === 'M') && e.target.tagName !== 'INPUT') {
+      const on = !Sound.settings.music;
+      Sound.setMusic(on);
+      Sound.setSfx(on);
+      toast(on ? '声音已开启' : '已静音');
       return;
     }
     if (!App.battle || App.battle.status !== 'active' || App.busy) return;
@@ -643,6 +755,7 @@ async function init() {
   Settings.load();
   Settings.apply();
   if (window.FX) FX.init();
+  if (window.Sound) Sound.init();
   bindEvents();
   setInterval(() => {
     if (App.state && App.state.active) {
@@ -657,6 +770,7 @@ async function init() {
     App.state = await API.get('/api/state');
     if (App.state.active) {
       enterGame();
+      if (App.state.story && App.state.story.ending_ready) setTimeout(showEnding, 1400);
     } else {
       renderStart();
     }

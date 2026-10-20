@@ -100,3 +100,7 @@ def area_map() -> dict[str, dict]:
 
 def area_def(area_id: str) -> dict:
     return area_map()[area_id]
+
+
+def story_data() -> dict:
+    return _load("story.json")

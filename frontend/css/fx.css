@@ -718,3 +718,161 @@ html[data-vt="soft"]::view-transition-new(root) { animation-name: vtSoftIn; anim
   .fx-runes,
   #fx-canvas { display: none; }
 }
+
+/* ---------------- 叙事浮层 ---------------- */
+.story-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 215;
+  display: grid;
+  place-items: center;
+  padding: 40px 24px;
+}
+.story-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(var(--accent-rgb), .10), transparent 62%),
+    rgba(3, 5, 6, .82);
+  backdrop-filter: blur(9px);
+  animation: fadeIn .45s ease;
+}
+.story-panel {
+  position: relative;
+  width: min(640px, 100%);
+  min-height: 292px;
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  overflow: auto;
+  padding: 36px 44px 24px;
+  background: rgba(9, 12, 13, .94);
+  border: 1px solid rgba(var(--accent-rgb), .26);
+  box-shadow: 0 40px 120px rgba(0, 0, 0, .72), inset 0 0 0 1px rgba(255, 255, 255, .03);
+}
+.story-layer.in .story-panel { animation: storyIn .62s cubic-bezier(.2, .9, .2, 1); }
+.story-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), .55), transparent);
+}
+.story-rule.top { margin-bottom: 26px; }
+.story-rule.bottom { margin-top: 22px; }
+.story-head { margin-bottom: 22px; }
+.story-kicker {
+  display: block;
+  font-size: 10px;
+  letter-spacing: .58em;
+  color: rgba(var(--accent-rgb), .8);
+  margin-bottom: 10px;
+}
+.story-title {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 400;
+  letter-spacing: .16em;
+  color: #f0e9da;
+  margin: 0;
+}
+.story-body { flex: 1; min-height: 132px; display: flex; flex-direction: column; justify-content: center; }
+.story-line {
+  margin: 0 0 15px;
+  opacity: 0;
+  animation: storyLine .55s ease forwards;
+  animation-delay: calc(var(--i) * 240ms + 240ms);
+}
+.story-line.narration .story-text {
+  font-family: var(--font-display);
+  font-size: 15px;
+  line-height: 1.95;
+  color: var(--bone-dim);
+}
+.story-line.speech {
+  padding-left: 15px;
+  border-left: 1px solid rgba(var(--accent-rgb), .38);
+}
+.story-line.speech .story-text {
+  font-family: var(--font-display);
+  font-size: 16.5px;
+  line-height: 1.85;
+  color: #ece4d4;
+}
+.story-who {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: .16em;
+  color: rgba(var(--accent-rgb), .92);
+  margin-bottom: 4px;
+}
+.story-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin: 26px 0 6px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  opacity: 0;
+  animation: storyLine .6s ease forwards;
+  animation-delay: calc(var(--i, 0) * 1ms + 900ms);
+}
+.ss-cell {
+  background: #0b0f10;
+  padding: 14px 10px;
+  text-align: center;
+}
+.ss-cell b {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--brass);
+  letter-spacing: .04em;
+}
+.ss-cell span { font-size: 11px; color: var(--bone-faint); letter-spacing: .16em; }
+.story-epilogue {
+  margin: 22px 0 4px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 15px;
+  letter-spacing: .18em;
+  color: rgba(var(--accent-rgb), .85);
+  opacity: 0;
+  animation: storyLine .8s ease forwards;
+  animation-delay: calc(var(--i) * 240ms + 700ms);
+}
+.story-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+}
+.story-hint { font-size: 11px; color: var(--bone-dim); letter-spacing: .12em; }
+.story-layer.is-ending .story-panel { border-color: rgba(var(--accent-rgb), .45); }
+.story-layer.is-ending .story-title { font-size: 34px; }
+
+/* 跳过逐条动画 */
+.story-layer.reveal-all .story-line,
+.story-layer.reveal-all .story-stats,
+.story-layer.reveal-all .story-epilogue {
+  animation: none;
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes storyIn {
+  from { opacity: 0; transform: translateY(18px) scale(.985); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes storyLine {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 720px) {
+  .story-layer { padding: 18px 14px; }
+  .story-panel { padding: 26px 22px 18px; }
+  .story-title { font-size: 24px; }
+  .story-layer.is-ending .story-title { font-size: 26px; }
+  .story-line.speech .story-text { font-size: 15px; }
+  .story-stats { grid-template-columns: repeat(2, 1fr); }
+}
