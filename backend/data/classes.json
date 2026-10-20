@@ -6,8 +6,8 @@
     "emoji": "⚔️",
     "desc": "以血肉筑墙的近战核心。生命与防御成长最高，擅长破甲、眩晕与正面压制，越到后期越能靠装备滚雪球。",
     "difficulty": "新手推荐",
-    "base": { "hp": 130, "mp": 30, "atk": 15, "def": 13, "agi": 8, "crit": 5 },
-    "growth": { "hp": 24, "mp": 3, "atk": 4.2, "def": 3.4, "agi": 1.3, "crit": 0.15 },
+    "base": { "hp": 130, "mp": 46, "atk": 15, "def": 13, "agi": 8, "crit": 5 },
+    "growth": { "hp": 24, "mp": 5.4, "atk": 5.1, "def": 3.4, "agi": 1.3, "crit": 0.15 },
     "start_equipment": { "weapon": "w_iron_sword", "armor": "a_leather_vest" },
     "start_items": { "potion_hp": 3, "potion_mp": 1 }
   },
@@ -30,8 +30,8 @@
     "emoji": "🏹",
     "desc": "速度与暴击的化身。高闪避能整回合规避伤害，毒伤与多段箭雨让 Boss 持续失血。",
     "difficulty": "高手",
-    "base": { "hp": 102, "mp": 52, "atk": 14, "def": 7, "agi": 14, "crit": 12 },
-    "growth": { "hp": 17, "mp": 4.5, "atk": 3.8, "def": 2.0, "agi": 2.4, "crit": 0.4 },
+    "base": { "hp": 102, "mp": 64, "atk": 14, "def": 7, "agi": 14, "crit": 12 },
+    "growth": { "hp": 17, "mp": 6.2, "atk": 4.6, "def": 2.0, "agi": 2.4, "crit": 0.4 },
     "start_equipment": { "weapon": "w_hunting_bow", "armor": "a_leather_vest" },
     "start_items": { "potion_hp": 2, "potion_mp": 2 }
   },
@@ -42,8 +42,8 @@
     "emoji": "✨",
     "desc": "能自我续航的持久战专家。治疗、护盾、净化三件套，容错率最高，输出偏慢。",
     "difficulty": "稳健",
-    "base": { "hp": 112, "mp": 72, "atk": 13, "def": 9, "agi": 8, "crit": 5 },
-    "growth": { "hp": 19, "mp": 6, "atk": 3.6, "def": 2.4, "agi": 1.3, "crit": 0.15 },
+    "base": { "hp": 112, "mp": 82, "atk": 13, "def": 9, "agi": 8, "crit": 5 },
+    "growth": { "hp": 19, "mp": 6.8, "atk": 4.2, "def": 2.4, "agi": 1.3, "crit": 0.15 },
     "start_equipment": { "weapon": "w_oak_hammer", "armor": "a_cloth_robe" },
     "start_items": { "potion_hp": 3, "potion_mp": 2 }
   }

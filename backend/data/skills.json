@@ -1,8 +1,8 @@
 [
   {
     "id": "war_cleave", "class": "warrior", "name": "破甲斩", "icon": "🪓", "unlock_level": 1, "mp": 6,
-    "type": "physical", "power": 1.55, "hits": 1,
-    "desc": "全力劈砍，造成 155% 攻击伤害并削弱目标 25% 防御，持续 2 回合。",
+    "type": "physical", "power": 1.7, "hits": 1,
+    "desc": "全力劈砍，造成 170% 攻击伤害并削弱目标 25% 防御，持续 2 回合。",
     "effects": [{ "kind": "debuff", "stat": "def", "pct": -0.25, "rounds": 2, "chance": 0.9 }]
   },
   {
@@ -25,8 +25,8 @@
   },
   {
     "id": "war_execute", "class": "warrior", "name": "斩首", "icon": "💀", "unlock_level": 12, "mp": 19,
-    "type": "physical", "power": 2.15, "hits": 1,
-    "desc": "215% 攻击伤害；若目标生命低于 30%，额外提升 60% 伤害。",
+    "type": "physical", "power": 2.6, "hits": 1,
+    "desc": "260% 攻击伤害；若目标生命低于 30%，额外提升 60% 伤害。",
     "effects": [{ "kind": "execute", "threshold": 0.3, "bonus": 0.6 }]
   },
   {
@@ -108,8 +108,8 @@
   },
   {
     "id": "ran_mark", "class": "ranger", "name": "猎杀印记", "icon": "🎯", "unlock_level": 12, "mp": 17,
-    "type": "physical", "power": 2.0, "hits": 1,
-    "desc": "200% 伤害并标记目标，削弱其 35% 防御，持续 3 回合。",
+    "type": "physical", "power": 2.25, "hits": 1,
+    "desc": "225% 伤害并标记目标，削弱其 35% 防御，持续 3 回合。",
     "effects": [{ "kind": "debuff", "stat": "def", "pct": -0.35, "rounds": 3, "chance": 1 }]
   },
   {
