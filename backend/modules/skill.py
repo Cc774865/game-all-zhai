@@ -6,6 +6,23 @@ from ..data_loader import skill_map, skills_for_class
 MAX_SKILL_LEVEL = 5
 POWER_PER_LEVEL = 0.15
 
+# 护甲穿透：法术天然穿一半，物理靠「熟练度」慢慢长出穿透。
+# 之前物理是 0、法术是 0.5 —— 高护甲目标下这是两个游戏，物理职业在
+# 熔岩魔君之后直接无解。现在物理 Lv1 有 12%、满级 24%，法术仍是 50%，
+# 但法术的攻击成长不再压物理一头（见 classes.json），两边各有取舍。
+DEFAULT_PIERCE = {"physical": 0.12, "magic": 0.5}
+PIERCE_PER_LEVEL = {"physical": 0.03, "magic": 0.0}
+MAX_PIERCE = 0.85
+
+
+def pierce_of(skill: dict, level: int = 1) -> float:
+    """技能的护甲穿透：数据里显式写的优先，否则按类型给默认值与熟练度成长。"""
+    if "pierce" in skill:
+        return float(skill["pierce"])
+    base = DEFAULT_PIERCE.get(skill.get("type"), 0.0)
+    growth = PIERCE_PER_LEVEL.get(skill.get("type"), 0.0)
+    return min(MAX_PIERCE, round(base + growth * max(0, level - 1), 3))
+
 
 def proficiency_need(level: int) -> int:
     """从当前熟练等级升到下一级所需的施展次数。"""
@@ -72,6 +89,7 @@ def skill_list(char) -> list[dict]:
             "mp": mp_cost(skill, lvl or 1),
             "power": power_of(skill, lvl or 1),
             "base_power": skill.get("power", 0),
+            "pierce": pierce_of(skill, lvl or 1),
             "hits": skill.get("hits", 1),
             "aoe": skill.get("aoe", False),
         })

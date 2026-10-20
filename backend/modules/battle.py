@@ -227,7 +227,7 @@ class Battle:
             return
 
         crit_bonus = sum(e.get("value", 0) for e in effects if e["kind"] == "crit_bonus")
-        pierce = skill.get("pierce", 0.5 if skill_type == "magic" else 0.0)
+        pierce = skill_mod.pierce_of(skill, level)
         hits = max(1, int(skill.get("hits", 1)))
         targets = self._alive_enemies() if skill.get("aoe") else [self._pick_target(target_index)]
         targets = [t for t in targets if t]
@@ -258,9 +258,13 @@ class Battle:
                 if not alive:
                     break
                 if skill.get("aoe"):
+                    # 群体多段：每段重新挑选目标，优先打还站着的
                     target = random.choice(alive)
+                elif not targets[0].is_alive():
+                    # 主目标已倒下：段数转到下一个存活目标，而不是继续鞭尸
+                    target = alive[0]
                 else:
-                    target = targets[0] if not targets[0].is_alive() else targets[0]
+                    target = targets[0]
                 label = f"{skill['name']}·第 {hit + 1} 段" if hits > 1 else skill["name"]
                 total += self._player_hit(target, power_vs(target), label,
                                           crit_bonus=crit_bonus, pierce=pierce)
@@ -386,10 +390,12 @@ class Battle:
 
     # ---------- 敌人行动 ----------
     def _choose_enemy_action(self, enemy: Enemy) -> dict:
-        heal_skills = [s for s in enemy.skills if s.get("type") == "heal"]
+        # 冷却未走完 / 本场次数用尽的技能直接排除，避免「治疗无 CD」把战斗锁死
+        usable = [s for s in enemy.skills if enemy.skill_ready(s, self.round)]
+        heal_skills = [s for s in usable if s.get("type") == "heal"]
         if heal_skills and enemy.hp / enemy.max_hp < 0.45 and random.random() < 0.7:
             return {"kind": "skill", "skill": random.choice(heal_skills)}
-        for skill in enemy.skills:
+        for skill in usable:
             if random.random() < skill.get("chance", 0.3):
                 return {"kind": "skill", "skill": skill}
         return {"kind": "attack", "skill": None}
@@ -405,6 +411,7 @@ class Battle:
         if intent["kind"] == "skill":
             skill = intent["skill"]
             name = skill["name"]
+            enemy.note_skill_used(skill, self.round)
             if skill.get("type") == "heal":
                 amount = int(enemy.max_hp * skill.get("heal_pct", 0.1))
                 healed = enemy.heal(amount)
@@ -421,7 +428,7 @@ class Battle:
 
             self._log("enemy", f"{enemy.name} 使用【{name}】。", target=enemy.index)
             power = skill.get("power", 1.0)
-            pierce = 0.5 if skill.get("type") == "magic" else 0.0
+            pierce = skill_mod.pierce_of(skill, 1)
             hits = max(1, int(skill.get("hits", 1)))
             total = 0
             for _ in range(hits):

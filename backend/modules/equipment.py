@@ -197,8 +197,15 @@ def use_consumable(char, item_id: str) -> dict:
     return result
 
 
-def shop_stock() -> list[dict]:
-    """晨曦村商店：消耗品 + 一阶装备。"""
+SELL_RATE = 0.45
+
+
+def shop_stock(level: int = 1) -> list[dict]:
+    """晨曦村商店：消耗品 + 一阶装备。
+
+    装备价格按「此刻买入会生成的那件物品」报价，避免标价与生成价脱钩，
+    更避免买家在高等级时低买高卖刷金币。
+    """
     stock = []
     for item_id, base in consumables().items():
         stock.append({
@@ -208,34 +215,40 @@ def shop_stock() -> list[dict]:
     for template in equipment_templates():
         if template["tier"] != 1:
             continue
+        # 商店只卖普通品质，报价与 make_item 完全同源
+        quoted = make_item(template["id"], "common", max(1, level))
         stock.append({
             "item_id": template["id"], "name": template["name"], "emoji": template["emoji"],
             "desc": " / ".join(f"{STAT_LABEL.get(k, k)}+{v}" for k, v in template["stats"].items()),
-            "price": template["price"], "type": "equipment", "slot": template["slot"],
+            "price": quoted["price"], "type": "equipment", "slot": template["slot"],
             "classes": template.get("classes"),
         })
     return stock
 
 
 def buy(char, item_id: str) -> dict:
-    stock = {s["item_id"]: s for s in shop_stock()}
+    stock = {s["item_id"]: s for s in shop_stock(char.level)}
     if item_id not in stock:
         raise ValueError("商店没有这件商品")
     entry = stock[item_id]
-    if char.gold < entry["price"]:
-        raise ValueError("金币不足")
     if entry["type"] == "equipment":
         allowed = entry.get("classes")
         if allowed and char.class_id not in allowed:
             raise ValueError("该装备不适合你的职业")
+    # 报价与真实生成物同源，买卖差价才有唯一锚点
+    price = entry["price"]
     if entry["type"] == "consumable":
+        if char.gold < price:
+            raise ValueError("金币不足")
         if not add_consumable(char, item_id, 1):
             raise ValueError("背包已满")
-        char.gold -= entry["price"]
-        return {"name": entry["name"], "gold": entry["price"]}
+        char.gold -= price
+        return {"name": entry["name"], "gold": price}
     if len(char.inventory) >= INVENTORY_CAP:
         raise ValueError("背包已满")
     item = make_item(item_id, "common", max(1, char.level))
-    char.gold -= entry["price"]
+    if char.gold < item["price"]:
+        raise ValueError("金币不足")
+    char.gold -= item["price"]
     char.inventory.append(item)
-    return {"name": item["name"], "gold": entry["price"], "item": item}
+    return {"name": item["name"], "gold": item["price"], "item": item}

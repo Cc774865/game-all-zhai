@@ -36,6 +36,10 @@ class Enemy:
         self.dots: list[dict] = []
         self.stun_rounds = 0
         self.shield = 0
+        # 技能冷却：skill_uses 累计使用次数，skill_last 记录最近使用的回合。
+        # 只对数据里带 cooldown / max_uses 的技能生效，旧数据不受影响。
+        self.skill_uses: dict[str, int] = {}
+        self.skill_last: dict[str, int] = {}
 
     # ---------- 有效属性 ----------
     def buff_mult(self, stat: str) -> float:
@@ -78,6 +82,24 @@ class Enemy:
         self.hp = min(self.max_hp, self.hp + int(amount))
         return self.hp - before
 
+    # ---------- 技能冷却 ----------
+    def skill_ready(self, skill: dict, round_no: int) -> bool:
+        """冷却未走完、或用尽了本场次数，就不能再选这个技能。"""
+        max_uses = skill.get("max_uses")
+        if max_uses is not None and self.skill_uses.get(skill["name"], 0) >= max_uses:
+            return False
+        cooldown = skill.get("cooldown")
+        if cooldown:
+            last = self.skill_last.get(skill["name"])
+            if last is not None and round_no - last < cooldown:
+                return False
+        return True
+
+    def note_skill_used(self, skill: dict, round_no: int) -> None:
+        name = skill["name"]
+        self.skill_uses[name] = self.skill_uses.get(name, 0) + 1
+        self.skill_last[name] = round_no
+
     # ---------- 序列化 ----------
     def to_dict(self) -> dict:
         return {
@@ -106,6 +128,8 @@ class Enemy:
             "dots": self.dots,
             "stun_rounds": self.stun_rounds,
             "shield": self.shield,
+            "skill_uses": self.skill_uses,
+            "skill_last": self.skill_last,
         }
 
     @classmethod
@@ -134,6 +158,8 @@ class Enemy:
         enemy.dots = list(data.get("dots", []))
         enemy.stun_rounds = int(data.get("stun_rounds", 0))
         enemy.shield = int(data.get("shield", 0))
+        enemy.skill_uses = dict(data.get("skill_uses", {}))
+        enemy.skill_last = dict(data.get("skill_last", {}))
         return enemy
 
     def view(self) -> dict:

@@ -171,7 +171,7 @@ class GameService:
             },
             "battle": self.battle.view() if self.battle and self.battle.status == "active" else None,
             "skills": skill_mod.skill_list(self.char),
-            "shop": equip_mod.shop_stock(),
+            "shop": equip_mod.shop_stock(self.char.level),
             "saves": save_mod.list_saves(),
             "playtime": self._playtime(),
             "message": self.last_message,
